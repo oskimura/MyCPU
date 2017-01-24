@@ -1,12 +1,13 @@
+`default_nettype none
 module alu(src_a,src_b,alu_control,
            alu_result,alu_flags);
     input [31:0] src_a;
     input [31:0] src_b;
-    input [3:0] alu_control;
+    input [1:0] alu_control;
     output reg  [31:0] alu_result;
     output [3:0] alu_flags;
 
-    wire zero,overflow,carry;
+    wire zero,overflow,carry,neg;
     reg cout;
 
     always @(*) begin
