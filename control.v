@@ -56,8 +56,11 @@ module contorol(clk,reset,op,cond,funct,rd,
                        .flag_w(flag_write),
                        .no_write(no_write));
 
-    cond_logic cond_logic_u(.clk(clk),.pcs(pcs),.reg_w(reg_w),.mem_w(),
+    cond_logic cond_logic_u(.clk(clk),
     .reset(reset),
+    .pcs(pcs),
+    .reg_w(reg_w),
+    .mem_w(mem_w),
 
                         .flag_w(flag_write),
                         .cond(cond),
