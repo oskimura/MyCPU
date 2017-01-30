@@ -60,7 +60,7 @@ module decoder(op,funct,rd,
     end
 
     assign flag_w[1] = alu_op & funct[0];
-    assign flag_w[0] = alu_op & funct[0] & (alu_op == 2'b00 || alu_op == 2'b01);
+    assign flag_w[0] = alu_op & funct[0] & (alu_control == 2'b00 || alu_control == 2'b01);
 
     assign pcs = ((rd==4'd15)&reg_w)|branch;
 endmodule
