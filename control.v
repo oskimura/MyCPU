@@ -36,6 +36,7 @@ module contorol(clk,reset,op,cond,funct,rd,
     wire [3:0]alu_flag;
 
     wire [1:0] flag_write;
+    wire no_write;
 
     decoder decoder_u(.op(op), 
     .funct(funct), 
