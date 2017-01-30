@@ -87,6 +87,8 @@ module data_path(clk,reset,
 
    wire [31:0] result;
    assign result = (mem_to_reg)? rd : alu_result;
+   wire [31:0] pc_result4;
+   wire [31:0] pc_plus8;
 
    wire [31:0] pc1;
    assign pc1 = (pc_src)? result : pc_result4;
@@ -94,10 +96,7 @@ module data_path(clk,reset,
         pc <= pc1;
    end
 
-   wire [31:0] pc_result4;
    assign pc_result4 = pc + 4;
-
-   wire [31:0] pc_plus8;
    assign pc_plus8 = pc_result4 + 4;
 
 endmodule
