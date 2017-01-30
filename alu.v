@@ -12,11 +12,11 @@ module alu(src_a,src_b,alu_control,
 
     always @(*) begin
         case (alu_control)
-            2'b00: {cout,alu_result} <= src_a + src_b;
-            2'b01: {cout,alu_result} <= src_a - src_b;
+            2'b00: {cout,alu_result} <=  src_a + src_b;
+            2'b01: {cout,alu_result} <=  src_a - src_b;
                     
-            2'b01: alu_result <= src_a & src_b;
-            2'b11: alu_result <= src_a | src_b;
+            2'b10: alu_result <=  src_a & src_b;
+            2'b11: alu_result <=  src_a | src_b;
         endcase
     end
 
