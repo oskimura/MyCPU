@@ -5,7 +5,6 @@ module data_path(clk,reset,
                  mem_to_reg,
                  mem_write,
                  alu_control,
-                 branch,
                  alu_src,
          
                 
@@ -25,8 +24,8 @@ module data_path(clk,reset,
         mem_to_reg,
         mem_write,
         
-        alu_src,
-        branch;
+        alu_src
+        ;
     output [3:0]cond;
     output [1:0] op;
     output [5:0] funct;
