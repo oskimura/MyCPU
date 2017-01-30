@@ -10,7 +10,7 @@ module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
 
     wire cond_ex;
     
-    reg [3:0] flags;
+    wire [3:0] flags;
     wire [1:0] flag_write;
 
     assign flag_write = flag_w & cond_ex;
