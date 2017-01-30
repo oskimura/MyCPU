@@ -1,5 +1,5 @@
 `default_nettype none
-module contorol(clk,op,cond,funct,rd,
+module contorol(clk,reset,op,cond,funct,rd,
 
                  pc_src,
                  reg_write,
@@ -11,7 +11,7 @@ module contorol(clk,op,cond,funct,rd,
                  //flag_write,
                  imm_src,
                  reg_src);
-    input clk;
+    input clk,reset;
     input [1:0] op;
     input [3:0] cond;
     input [5:0] funct;
@@ -53,6 +53,7 @@ module contorol(clk,op,cond,funct,rd,
                        .no_write(no_write));
 
     cond_logic cond_logic_u(.clk(clk),.pcs(pcs),.reg_w(reg_w),.mem_w(),
+    .reset(reset),
 
                         .flag_w(flag_write),
                         .cond(cond),
