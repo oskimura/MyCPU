@@ -16,11 +16,11 @@ module decoder(op,funct,rd,
             2'd0:
                 // dp reb
                 if (funct[5]) begin
-                    control <= 10'b0000xx1001;
+                    control <= 10'b0001001x01;
                 end
                 // dp imm
                 else begin
-                    control <= 10'b0001001x01; 
+                    control <= 10'b0000xx1001; 
                 end 
             2'd1:
                 // str
