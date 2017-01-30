@@ -91,9 +91,10 @@ module data_path(clk,reset,
    wire [31:0] pc_result4;
    wire [31:0] pc_plus8;
 
-   always @(clk) begin
    // pc
    assign pc_next = (pc_src)? result : pc_result4;
+   always @(posedge clk or posedge reset) begin
+         if (reset) pc <= 32'b0;
          else pc <= #1 pc_next;
    end
 
