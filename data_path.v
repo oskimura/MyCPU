@@ -1,5 +1,6 @@
 `default_nettype none
-module data_path(clk,pc_src,
+module data_path(clk,reset,
+                 pc_src,
                  reg_write,
                  mem_to_reg,
                  mem_write,
@@ -18,7 +19,8 @@ module data_path(clk,pc_src,
                  cond,op,funct,rd,
                  a,wd);
 
-    input clk,pc_src,
+    input clk,reset,
+        pc_src,
         reg_write,
         mem_to_reg,
         mem_write,
@@ -119,6 +121,7 @@ endmodule
 module reg_file(clk,we3,a1,a2,a3,wd3,r15,
                 rd1,rd2);
     input clk,we3;
+    input clk,reset,we3;
     input [3:0] a1,a2,a3;
     input [31:0] wd3,r15;
     output [31:0] rd1,rd2;
