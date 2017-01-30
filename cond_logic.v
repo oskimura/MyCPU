@@ -32,8 +32,8 @@ module cond_logic(clk,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
 
     cond_check cond_check_u(.cond(cond),.flags(flags),.cond_ex(cond_ex));
     assign pc_src = pcs & cond_ex;
-    assign reg_write = reg_w & cond_ex;
     assign mem_write = mem_w; 
+    assign reg_write = reg_w & cond_ex & ~no_write;
 
 endmodule
 
