@@ -45,6 +45,7 @@ module data_path(clk,reset,
 
     wire [3:0] ra1,ra2;
 
+    wire [31:0] result;
     assign cond = instr[31:28];
     assign op = instr[27:26];
     assign funct = instr[25:20];
