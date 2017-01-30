@@ -25,12 +25,12 @@ module decoder(op,funct,rd,
                     control <= 10'b0000xx1001; 
                 end 
             2'd1:
-                // str
-                if (funct[0]) begin
-                    control <= 10'b0x11010100;
                 // ldr
+                if (funct[0]) begin
+                    control <= 10'b0101011x00;                   
+                // str
                 end else begin
-                    control <= 10'b0101011x00;
+                    control <= 10'b0x11010100;
                 end
             2'd2:
                 // b
