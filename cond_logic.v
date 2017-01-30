@@ -10,16 +10,27 @@ module cond_logic(clk,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
     wire cond_ex;
     
     reg [3:0] flags;
-    wire flag_write;
+    wire [1:0] flag_write;
 
     assign flag_write = flag_w & cond_ex;
-    always @(clk or flag_write) begin
-        if (flag_write) flags <= 0;
-        else
-            flags <= alu_flag; 
-    end
-    cond_check cond_check_u(.cond(cond),.flags(flags),.cond_ex(cond_ex));
+    // always @(clk or reset or flag_write) begin
+    //     if (reset) flags <= 4'b0;
+    //     else if (flag_write) flags <= alu_flag;
+    // end
 
+    ff  #(2)ff_h(.clk(clk),
+        .reset(reset),
+        .en(flag_write[1]),
+        .d(alu_flag[3:2]),
+        .q(flags[3:2]));
+
+    ff  #(2)ff_l(.clk(clk),
+        .reset(reset),
+        .en(flag_write[0]),
+        .d(alu_flag[1:0]),
+        .q(flags[1:0]));
+
+    cond_check cond_check_u(.cond(cond),.flags(flags),.cond_ex(cond_ex));
     assign pc_src = pcs & cond_ex;
     assign reg_write = reg_w & cond_ex;
     assign mem_write = mem_w; 
@@ -52,5 +63,18 @@ module cond_check(cond,flags,cond_ex);
             4'b1110: cond_ex <= 1'b1;
             default: cond_ex <= 1'bx;
         endcase
+    end
+endmodule
+
+
+module ff #(parameter W = 8)
+          (clk,reset,en,d,q);
+ input clk,reset,en;
+ input [W-1:0] d;
+ output reg [W-1:0] q;
+
+    always @(posedge clk or posedge reset) begin
+        if (reset) q<=0;
+        else if (en) q<=d;
     end
 endmodule
