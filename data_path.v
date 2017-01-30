@@ -50,8 +50,8 @@ module data_path(clk,reset,
     assign funct = instr[25:20];
     assign rd = instr[15:12];
     //assign  = instr[11:5];
-    assign  ra1 = (reg_src) ? 4'd15 :instr[19:16];
-    assign  ra2 = (reg_src) ? instr[15:12] : instr[3:0];
+    assign  ra1 = (reg_src[0]) ? 4'd15 :instr[19:16];
+    assign  ra2 = (reg_src[1]) ? instr[15:12] : instr[3:0];
     //assign  = instr[23:0];
 
 
