@@ -40,11 +40,17 @@ module decoder(op,funct,rd,
     always @(*) begin
         if (alu_op) begin
             
-            case (funct[4:1]) 
-                0100: alu_control <= 2'b00;
-                0010: alu_control <= 2'b01;
-                0000: alu_control <= 2'b10;
-                1100: alu_control <= 2'b11;
+            case (cmd) 
+                //add
+                4'b0100: alu_control <= 2'b00;
+                //sub
+                4'b0010: alu_control <= 2'b01;
+                //and
+                4'b0000: alu_control <= 2'b10;
+                //or
+                4'b1100: alu_control <= 2'b11;
+                // cmp
+                4'b1010: alu_control <= 2'b01;
             endcase
         
         end 
