@@ -39,6 +39,8 @@ module decoder(op,funct,rd,
     end
 
     assign {branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op} = control;
+    wire [3:0] cmd;
+    assign cmd = funct[4:1];
     always @(*) begin
         if (alu_op) begin
             
