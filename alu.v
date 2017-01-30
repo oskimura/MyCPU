@@ -22,15 +22,12 @@ module alu(src_a,src_b,alu_control,
 
     assign zero = (alu_result==0)? 1 : 0;
     assign neg = (alu_result<0)? 1 : 0;
-    assign overflow = ((alu_control[0] ^ src_a[31] ^ src_b[31]) && 
-                      (src_a[31] ^ alu_result[31]) &&
-    ~(alu_control[1])) ?1:0;
-
-
-    //assign overflow = (src_a[31] == src_b[31] && alu_result[31] != src_a[31]) ? 1 : 0;
-
-
     assign carry = ~(alu_control[1]&cout);
+    //assign overflow = ((~src_a[31] && ~src_b[31] && alu_result[31]) || (src_a[31] && src_b[31] && ~alu_result[31])) ? 1 :0;
+    assign overflow = ((~(alu_control[0]) & (src_a[31] ~^ src_b[31]) || 
+                         (alu_control[0]) & (src_a[31] ^ src_b[31])) &&
+                        (src_a[31] ^ alu_result[31]) &&
+                       ~(alu_control[1])) ?1:0;
 
     assign alu_flags = {neg,zero,carry,overflow};    
 
