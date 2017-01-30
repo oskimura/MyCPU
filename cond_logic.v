@@ -1,6 +1,7 @@
-module cond_logic(clk,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
-    input clk,pcs,reg_w,mem_w;
+`default_nettype none
+module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
                  pc_src,reg_write,mem_write,no_write);
+    input clk,reset,pcs,reg_w,mem_w;
     input [1:0] flag_w;
     input [3:0] alu_flag,cond;
 
