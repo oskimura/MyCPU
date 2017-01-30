@@ -1,10 +1,11 @@
 module cond_logic(clk,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
-                 pc_src,reg_write,mem_write);
     input clk,pcs,reg_w,mem_w;
+                 pc_src,reg_write,mem_write,no_write);
     input [1:0] flag_w;
     input [3:0] alu_flag,cond;
 
     output pc_src,reg_write,mem_write;
+    input no_write;
 
     wire cond_ex;
     

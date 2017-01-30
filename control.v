@@ -49,7 +49,8 @@ module contorol(clk,op,cond,funct,rd,
                        .imm_src(imm_src),
                        .reg_src(reg_src),
                        .alu_control(alu_control),
-                       .flag_w(flag_write));
+                       .flag_w(flag_write),
+                       .no_write(no_write));
 
     cond_logic cond_logic_u(.clk(clk),.pcs(pcs),.reg_w(reg_w),.mem_w(),
 
@@ -58,7 +59,8 @@ module contorol(clk,op,cond,funct,rd,
                         .alu_flag(alu_flag),
                         .pc_src(pc_src),
                         .reg_write(reg_write),
-                        .mem_write(mem_write));
+                        .mem_write(mem_write),
+                        .no_write(no_write));
 
 
 endmodule
