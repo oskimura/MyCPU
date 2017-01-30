@@ -76,17 +76,9 @@ module data_path(clk,reset,
 
 
     //wire [31:0] alu_result;
-    // alu
-    alu alu_u(.src_a(src_a),.src_b(src_b),.alu_control(alu_control),
-           .alu_result(alu_result),.alu_flags());
 
 
-   
-   assign a = alu_result; 
-   assign wd =  write_data;
 
-   wire [31:0] result;
-   assign result = (mem_to_reg)? rd : alu_result;
    wire [31:0] pc_next;
    wire [31:0] pc_result4;
    wire [31:0] pc_plus8;
@@ -100,6 +92,13 @@ module data_path(clk,reset,
 
    assign pc_result4 = pc + 4;
    assign pc_plus8 = pc_result4 + 4;
+
+    // alu
+    alu alu_u(.src_a(src_a),.src_b(src_b),.alu_control(alu_control),
+           .alu_result(alu_result),.alu_flags());
+   assign a = alu_result; 
+   assign wd =  write_data;
+   assign result = (mem_to_reg)? rd : alu_result;
 
 endmodule
 
