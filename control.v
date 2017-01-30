@@ -10,7 +10,9 @@ module contorol(clk,reset,op,cond,funct,rd,
                  alu_src,
                  //flag_write,
                  imm_src,
-                 reg_src);
+                 reg_src,
+                 
+                 alu_flag);
     input clk,reset;
     input [1:0] op;
     input [3:0] cond;
@@ -27,6 +29,7 @@ module contorol(clk,reset,op,cond,funct,rd,
     output [1:0] alu_control;
     output [1:0] reg_src;
 
+    input [3:0] alu_flag;
 
     //wire [1:0] flag_write;
     wire pcs;
