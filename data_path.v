@@ -92,7 +92,6 @@ module data_path(clk,reset,
    wire [31:0] pc_plus8;
 
    always @(clk) begin
-        pc <= pc1;
    // pc
    assign pc_next = (pc_src)? result : pc_result4;
          else pc <= #1 pc_next;
