@@ -13,7 +13,6 @@ module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
     wire [3:0] flags;
     wire [1:0] flag_write;
 
-    assign flag_write = flag_w & cond_ex;
     // always @(clk or reset or flag_write) begin
     //     if (reset) flags <= 4'b0;
     //     else if (flag_write) flags <= alu_flag;
@@ -32,6 +31,9 @@ module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
         .q(flags[1:0]));
 
     cond_check cond_check_u(.cond(cond),.flags(flags),.cond_ex(cond_ex));
+    //assign flag_write = flag_w & {2{cond_ex}};
+    assign flag_write = flag_w;
+    
     assign pc_src = pcs & cond_ex;
     assign reg_write = reg_w & cond_ex & ~no_write;
     assign mem_write = (mem_w & cond_ex)?1:0; 
