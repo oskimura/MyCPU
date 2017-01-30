@@ -120,7 +120,6 @@ endmodule
 
 module reg_file(clk,we3,a1,a2,a3,wd3,r15,
                 rd1,rd2);
-    input clk,we3;
     input clk,reset,we3;
     input [3:0] a1,a2,a3;
     input [31:0] wd3,r15;
