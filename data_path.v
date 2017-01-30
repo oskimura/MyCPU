@@ -87,13 +87,15 @@ module data_path(clk,reset,
 
    wire [31:0] result;
    assign result = (mem_to_reg)? rd : alu_result;
+   wire [31:0] pc_next;
    wire [31:0] pc_result4;
    wire [31:0] pc_plus8;
 
-   wire [31:0] pc1;
-   assign pc1 = (pc_src)? result : pc_result4;
    always @(clk) begin
         pc <= pc1;
+   // pc
+   assign pc_next = (pc_src)? result : pc_result4;
+         else pc <= #1 pc_next;
    end
 
    assign pc_result4 = pc + 4;
