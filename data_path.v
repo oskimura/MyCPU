@@ -16,7 +16,8 @@ module data_path(clk,reset,
                  write_data,
                  read_data,
                  cond,op,funct,rd,
-                 a,wd);
+                 a,wd,
+                 shift);
 
     input clk,reset,
         pc_src,
@@ -41,6 +42,7 @@ module data_path(clk,reset,
     output [31:0] write_data;
     input [1:0] imm_src;
     output [31:0]a,wd;
+    input shift;
 
     wire [3:0] ra1,ra2;
 
@@ -72,7 +74,7 @@ module data_path(clk,reset,
                         .rd2(write_data));
 
 
-    assign src_b = (alu_src)? ext_imm :  write_data;
+    assign src_b = (alu_src)? ext_imm :  write_data << instr[11:5];
 
 
     //wire [31:0] alu_result;
@@ -96,7 +98,7 @@ module data_path(clk,reset,
     // alu
     alu alu_u(.src_a(src_a),.src_b(src_b),.alu_control(alu_control),
            .alu_result(alu_result),.alu_flags());
-   assign a = alu_result; 
+   assign a = shift? src_b :alu_result; 
    assign wd =  write_data;
    assign result = (mem_to_reg)? rd : alu_result;
 

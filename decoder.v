@@ -9,6 +9,7 @@ module decoder(op,funct,rd,
     output reg [1:0] alu_control;
             
     output no_write;
+    output shift;
 
     reg [9:0] control;
     wire branch,alu_op;
@@ -55,6 +56,8 @@ module decoder(op,funct,rd,
                 4'b1100: alu_control <= 2'b11;
                 // cmp
                 4'b1010: alu_control <= 2'b01;
+                // lsl
+                4'b1101: alu_control <= 2'bxx;
             endcase
         
         end 
@@ -66,6 +69,7 @@ module decoder(op,funct,rd,
     assign flag_w[1] = alu_op & funct[0];
     assign flag_w[0] = alu_op & funct[0] & (alu_control == 2'b00 || alu_control == 2'b01);
     assign no_write = (funct[4:0] == 5'b10101) && alu_op ? 1'b1 : 1'b0;
+    assign shift = (cmd==4'b1101)? 1'b1 : 1'b0;
 
     assign pcs = ((rd==4'd15)&reg_w)|branch;
 endmodule
