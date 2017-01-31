@@ -32,7 +32,8 @@ wire pc_src,
      wire [3:0] rd;
      wire [1:0] alu_control;
      wire [1:0] imm_src,reg_src;
-     wire shift;
+     
+     wire shift_flag;
 
      assign cond = instr[31:28];
      assign op = instr[27:26];
@@ -54,7 +55,7 @@ contorol contorol_u(.clk(clk),
                  //.flag_write(flag_write),
                  .imm_src(imm_src),
                  .reg_src(reg_src),
-                 .shift(shift));
+                 .shift_flag(shift_flag));
 
 data_path data_path_u(.pc_src(pc_src),
                       .reg_write(reg_write),
@@ -72,6 +73,6 @@ data_path data_path_u(.pc_src(pc_src),
                  .alu_result(alu_result),
                  .write_data(write_data),
                  .read_data(read_data),
-                 .shift(shift));
+                 .shift_flag(shift_flag));
 
 endmodule

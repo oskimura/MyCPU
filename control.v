@@ -12,7 +12,8 @@ module contorol(clk,reset,op,cond,funct,rd,
                  imm_src,
                  reg_src,
                  
-                 alu_flag);
+                 alu_flag,
+                 shift_flag);
     input clk,reset;
     input [1:0] op;
     input [3:0] cond;
@@ -30,7 +31,7 @@ module contorol(clk,reset,op,cond,funct,rd,
     output [1:0] reg_src;
 
     input [3:0] alu_flag;
-    output shift;
+    output shift_flag;
 
     //wire [1:0] flag_write;
     wire pcs;
@@ -56,7 +57,7 @@ module contorol(clk,reset,op,cond,funct,rd,
                        .alu_control(alu_control),
                        .flag_w(flag_write),
                        .no_write(no_write),
-                       .shift(shift));
+                       .shift_flag(shift_flag));
 
     cond_logic cond_logic_u(.clk(clk),
     .reset(reset),

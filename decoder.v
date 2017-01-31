@@ -1,6 +1,6 @@
 `default_nettype none
 module decoder(op,funct,rd,
-              pcs,reg_w,mem_w,mem_to_reg,alu_src,imm_src,reg_src,alu_control,flag_w,no_write);
+              pcs,reg_w,mem_w,mem_to_reg,alu_src,imm_src,reg_src,alu_control,flag_w,no_write,shift_flag);
     input [1:0] op;
     input [5:0] funct;
     input [3:0] rd;
@@ -9,7 +9,7 @@ module decoder(op,funct,rd,
     output reg [1:0] alu_control;
             
     output no_write;
-    output shift;
+    output shift_flag;
 
     reg [9:0] control;
     wire branch,alu_op;
@@ -69,7 +69,7 @@ module decoder(op,funct,rd,
     assign flag_w[1] = alu_op & funct[0];
     assign flag_w[0] = alu_op & funct[0] & (alu_control == 2'b00 || alu_control == 2'b01);
     assign no_write = (funct[4:0] == 5'b10101) && alu_op ? 1'b1 : 1'b0;
-    assign shift = (cmd==4'b1101)? 1'b1 : 1'b0;
+    assign shift_flag = (cmd==4'b1101 )? 1'b1 : 1'b0;
 
     assign pcs = ((rd==4'd15)&reg_w)|branch;
 endmodule
