@@ -56,6 +56,8 @@ module decoder(op,funct,rd,
                 4'b1100: alu_control <= 2'b11;
                 // cmp
                 4'b1010: alu_control <= 2'b01;
+                // tst
+                4'b1000: alu_control <= 2'b10;
                 // lsl
                 4'b1101: alu_control <= 2'bxx;
                 // cmn
@@ -70,7 +72,7 @@ module decoder(op,funct,rd,
 
     assign flag_w[1] = alu_op & funct[0];
     assign flag_w[0] = alu_op & funct[0] & (alu_control == 2'b00 || alu_control == 2'b01);
-    assign no_write = (cmd == 4'b1010 || cmd == 4'b1011) && alu_op 
+    assign no_write = (cmd == 4'b1010 || cmd == 4'b1011 || cmd == 4'b100) && alu_op 
                       ? 1'b1 : 1'b0;
     assign shift_flag = (cmd==4'b1101 )? 1'b1 : 1'b0;
 
