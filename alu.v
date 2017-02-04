@@ -3,7 +3,7 @@ module alu(src_a,src_b,alu_control,
            alu_result,alu_flags);
     input [31:0] src_a;
     input [31:0] src_b;
-    input [1:0] alu_control;
+    input [2:0] alu_control;
     output reg  [31:0] alu_result;
     output [3:0] alu_flags;
 
@@ -12,11 +12,11 @@ module alu(src_a,src_b,alu_control,
 
     always @(*) begin
         case (alu_control)
-            2'b00: {cout,alu_result} <=  src_a + src_b;
-            2'b01: {cout,alu_result} <=  src_a - src_b;
+            2'b000: {cout,alu_result} <=  src_a + src_b;
+            2'b001: {cout,alu_result} <=  src_a - src_b;
                     
-            2'b10: alu_result <=  src_a & src_b;
-            2'b11: alu_result <=  src_a | src_b;
+            2'b010: alu_result <=  src_a & src_b;
+            2'b011: alu_result <=  src_a | src_b;
         endcase
     end
 

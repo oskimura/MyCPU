@@ -31,7 +31,7 @@ module data_path(clk,reset,
     output [1:0] op;
     output [5:0] funct;
     output [3:0] rd;
-    input [1:0] alu_control;
+    input [2:0] alu_control;
 
        
     input [1:0] reg_src;

@@ -27,7 +27,7 @@ module contorol(clk,reset,op,cond,funct,rd,
            alu_src;
     //output [1:0] flag_write;
     output [1:0] imm_src;
-    output [1:0] alu_control;
+    output [2:0] alu_control;
     output [1:0] reg_src;
 
     input [3:0] alu_flag;

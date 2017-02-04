@@ -30,7 +30,7 @@ wire pc_src,
      wire [1:0] op;
      wire [5:0] funct;
      wire [3:0] rd;
-     wire [1:0] alu_control;
+     wire [2:0] alu_control;
      wire [1:0] imm_src,reg_src;
      
      wire shift_flag;

@@ -6,8 +6,8 @@ module decoder(op,funct,rd,
     input [3:0] rd;
     output pcs,reg_w,mem_w,mem_to_reg,alu_src;
     output [1:0] imm_src,reg_src,flag_w;
-    output reg [1:0] alu_control;
             
+    output reg [2:0] alu_control;
     output no_write;
     output shift_flag;
 
@@ -47,21 +47,21 @@ module decoder(op,funct,rd,
             
             case (cmd) 
                 //add
-                4'b0100: alu_control <= 2'b00;
+                4'b0100: alu_control <= 3'b000;
                 //sub
-                4'b0010: alu_control <= 2'b01;
+                4'b0010: alu_control <= 3'b001;
                 //and
-                4'b0000: alu_control <= 2'b10;
+                4'b0000: alu_control <= 3'b010;
                 //or
-                4'b1100: alu_control <= 2'b11;
+                4'b1100: alu_control <= 3'b011;
                 // cmp
-                4'b1010: alu_control <= 2'b01;
+                4'b1010: alu_control <= 3'b001;
                 // tst
-                4'b1000: alu_control <= 2'b10;
+                4'b1000: alu_control <= 3'b010;
                 // lsl
-                4'b1101: alu_control <= 2'bxx;
+                4'b1101: alu_control <= 3'b0xx;
                 // cmn
-                4'b1011: alu_control <= 2'b00;
+                4'b1011: alu_control <= 3'b000;
             endcase
         
         end 
