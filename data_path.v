@@ -137,4 +137,25 @@ module reg_file(clk,we3,a1,a2,a3,wd3,r15,
 
     assign rd1 = (a1==4'b1111)? r15 : r[a1];
     assign rd2 = (a2==4'b1111)? r15 : r[a2];
+
+module shift(instr, rd2,shift_result);
+
+    input [11:0] instr;
+    input [31:0] rd2;
+    output reg [31:0] shift_result;
+
+    wire [1:0] sh;
+    wire [3:0] rm;
+    wire [5:0] shamt;
+    wire flag;
+
+    assign {shamt,sh,flag,rm} = instr;
+
+    always @(*) begin
+        case (sh) 
+            // lsr
+            2'b01: shift_result <= shamt << rd2;
+        endcase
+    end
+
 endmodule
