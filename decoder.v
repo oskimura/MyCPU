@@ -62,6 +62,8 @@ module decoder(op,funct,rd,
                 4'b1101: alu_control <= 3'b0xx;
                 // cmn
                 4'b1011: alu_control <= 3'b000;
+                // adc
+                4'b0101: alu_control <= 3'b100;
             endcase
         
         end 
