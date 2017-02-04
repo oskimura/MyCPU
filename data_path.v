@@ -153,6 +153,8 @@ module shift(instr, rd2,shift_result);
 
     always @(*) begin
         case (sh) 
+            //lsl
+            2'b00: if (instr[11:4]!=0) shift_result <= rd2 << shamt;
             // lsr
             2'b01: shift_result <= shamt << rd2;
         endcase
