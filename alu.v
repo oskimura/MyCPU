@@ -17,6 +17,7 @@ module alu(src_a,src_b,alu_control,
                     
             3'b010: alu_result <=  src_a & src_b;
             3'b011: alu_result <=  src_a | src_b;
+            3'b111: alu_result <=  src_a ^ src_b;
         endcase
     end
 
