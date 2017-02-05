@@ -6,7 +6,6 @@ module contorol(clk,reset,op,cond,funct,rd,
                  mem_to_reg,
                  mem_write,
                  alu_control,
-                 branch,
                  alu_src,
                  //flag_write,
                  imm_src,
@@ -24,7 +23,6 @@ module contorol(clk,reset,op,cond,funct,rd,
            reg_write,
            mem_to_reg,
            mem_write,      
-           branch,
            alu_src;
     //output [1:0] flag_write;
     output [1:0] imm_src;
@@ -39,7 +37,6 @@ module contorol(clk,reset,op,cond,funct,rd,
     wire pcs;
     wire reg_w;
     wire mem_w;
-    wire branch;
     wire [3:0]alu_flag;
 
     wire [1:0] flag_write;

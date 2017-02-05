@@ -23,7 +23,6 @@ wire pc_src,
    
    alu_src,
    reg_write,
-   branch;
    swap
    ;
 
@@ -52,7 +51,6 @@ contorol contorol_u(.clk(clk),
                  .mem_to_reg(mem_to_reg),
                  .mem_write(mem_write),
                  .alu_control(alu_control),
-                 .branch(branch),
                  .alu_src(alu_src),
                  //.flag_write(flag_write),
                  .imm_src(imm_src),
@@ -65,7 +63,6 @@ data_path data_path_u(.pc_src(pc_src),
                       .mem_to_reg(mem_to_reg),
                       .mem_write(mem_write),
                       .alu_control(alu_control),
-                      .branch(branch),
                       .alu_src(alu_src),
                  
                  
