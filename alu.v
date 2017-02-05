@@ -22,6 +22,9 @@ module alu(src_ina,src_inb,alu_control,
                     
             3'b010: alu_result <=  src_a & src_b;
             3'b011: alu_result <=  src_a | src_b;
+
+            3'b100: {cout,alu_result} <= src_a + src_b + carry;
+            3'b101: {cout,alu_result} <= src_a - src_b - carry;
             3'b111: alu_result <=  src_a ^ src_b;
         endcase
     end
