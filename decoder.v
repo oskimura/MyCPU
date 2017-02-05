@@ -68,6 +68,8 @@ module decoder(op,funct,rd,
                 4'b0001: alu_control <=  3'b111;
                 // lsr
                 4'b0001: alu_control <=  3'b0xx;
+                // teq
+                4'b1001: alu_control <= 3'b111;
             endcase
         
         end 
@@ -79,6 +81,7 @@ module decoder(op,funct,rd,
     assign flag_w[1] = alu_op & funct[0];
     assign flag_w[0] = alu_op & funct[0] & (alu_control == 2'b00 || alu_control == 2'b01);
     assign no_write = (cmd == 4'b1010 || cmd == 4'b1011 || cmd == 4'b100) && alu_op 
+                       cmd == 4'b1001 ||
                       ? 1'b1 : 1'b0;
     assign shift_flag = (cmd==4'b1101 )? 1'b1 : 1'b0;
 
