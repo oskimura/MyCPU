@@ -1,14 +1,19 @@
 `default_nettype none
-module alu(src_a,src_b,alu_control,
-           alu_result,alu_flags);
-    input [31:0] src_a;
-    input [31:0] src_b;
+module alu(src_ina,src_inb,alu_control,
+           alu_result,alu_flags,swap);
+    input [31:0] src_ina;
+    input [31:0] src_inb;
     input [2:0] alu_control;
     output reg  [31:0] alu_result;
     output [3:0] alu_flags;
+    input swap;
 
     wire zero,overflow,carry,neg;
     reg cout;
+    wire [31:0] src_a,src_b;
+
+    assign src_a = swap? src_inb: src_ina;
+    assign src_b = swap? src_ina: src_inb;
 
     always @(*) begin
         case (alu_control)

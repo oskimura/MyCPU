@@ -24,6 +24,8 @@ wire pc_src,
    alu_src,
    reg_write,
    branch;
+   swap
+   ;
 
      
      wire [3:0] cond;
@@ -55,7 +57,8 @@ contorol contorol_u(.clk(clk),
                  //.flag_write(flag_write),
                  .imm_src(imm_src),
                  .reg_src(reg_src),
-                 .shift_flag(shift_flag));
+                 .shift_flag(shift_flag),
+                 .swap(swap));
 
 data_path data_path_u(.pc_src(pc_src),
                       .reg_write(reg_write),
@@ -73,6 +76,7 @@ data_path data_path_u(.pc_src(pc_src),
                  .alu_result(alu_result),
                  .write_data(write_data),
                  .read_data(read_data),
-                 .shift_flag(shift_flag));
+                 .shift_flag(shift_flag),
+                 .swap(swap));
 
 endmodule
