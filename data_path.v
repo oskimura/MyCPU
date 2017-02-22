@@ -1,94 +1,4 @@
 `default_nettype none
-// module data_path(clk,reset,
-//                  pc_src,
-//                  reg_write,
-//                  mem_to_reg,
-//                  mem_write,
-//                  alu_control,
-//                  alu_src,
-         
-                
-//                  imm_src,
-//                  reg_src,
-//                  pc,
-//                  instr,
-//                  alu_result,
-//                  write_data,
-//                  read_data,
-//                  cond,op,funct,rd,
-//                  a,wd,
-//                  shift_flag,
-//                  swap);
-
-//     input clk,reset,
-//         pc_src,
-//         reg_write,
-//         mem_to_reg,
-//         mem_write,
-        
-//         alu_src
-//         ;
-//     output [3:0]cond;
-//     output [1:0] op;
-//     output [5:0] funct;
-//     output [3:0] rd;
-//     input [2:0] alu_control;
-
-       
-//     input [1:0] reg_src;
-//     output reg [31:0] pc;
-//     input [31:0] instr;
-//     output [31:0] alu_result;
-//     input [31:0] read_data;
-//     output [31:0] write_data;
-//     input [1:0] imm_src;
-//     output [31:0]a,wd;
-//     input shift_flag;
-//     input swap;
-
-//     wire [3:0] ra1,ra2;
-
-//     wire [31:0] result;
-
-//     assign cond = instr[31:28];
-//     assign op = instr[27:26];
-//     assign funct = instr[25:20];
-//     assign rd = instr[15:12];
-//     //assign  = instr[11:5];
-//     assign  ra1 = (reg_src[0]) ? 4'd15 :instr[19:16];
-//     assign  ra2 = (reg_src[1]) ? instr[15:12] : instr[3:0];
-//     //assign  = instr[23:0];
-
-
-//    wire [31:0] ext_imm;
-//    extend extend_u(.instr(instr[23:0]),.imm_src(imm_src),
-//               .ext_imm(ext_imm));
-
-//     // reg file
-//     wire [31:0] src_a,src_b;
-//     reg_file reg_file_u(.clk(clk),
-//                         .we3(reg_write),
-//                         .a1(ra1),
-//                         .a2(ra2),
-//                         .a3(instr[15:12]),
-//                         .wd3(result),
-//                         .r15(pc_plus8),
-//                         .rd1(src_a),
-//                         .rd2(write_data));
-
-
-//     wire [31:0] shift_result;
-//     shift shift_u(.instr(instr[11:0]), .rd2(write_data),.shift_result(shift_result));
-//     assign src_b = (alu_src)? ext_imm :  shift_result;
-
-
-//     //wire [31:0] alu_result;
-
-
-
-
-
-
 
 module extend(instr,imm_src,
               ext_imm);
@@ -146,6 +56,7 @@ module shift(instr, rd2,shift_result);
     end
 
 endmodule///////////////////////////////////////////
+///////////////////////////////////////////
 // fetch
 module fetch(
     input clk,
@@ -264,10 +175,8 @@ module decode(
     assign op = instr_d[27:26];
     assign funct = instr_d[25:20];
     assign rd = instr_d[15:12];
-    //assign  = instr[11:5];
     assign  ra1 = (reg_src_d[0]) ? 4'd15 :instr_d[19:16];
     assign  ra2 = (reg_src_d[1]) ? instr_d[15:12] : instr_d[3:0];
-    //assign  = instr[23:0];
 
 
     // ext imm
@@ -329,7 +238,6 @@ module execute(
     input branch_d,
     input [1:0] flag_write_d,
     input [3:0] cond_d,
-    //input flag_d,
 
     // ALU input
     input [2:0] alu_control_d,
@@ -358,9 +266,7 @@ module execute(
     output reg_write_e,
     output mem_to_reg_e,
     output mem_write_e,
-
     
-    //output [31:0] a_m,
     // ALU OUTPUt
     output [31:0] alu_result_e,
     output [31:0] write_data_e,
@@ -425,15 +331,12 @@ module execute(
             alu_control_e<=alu_control_d;
             branch_e<=branch_d;
             alu_src_e<=alu_src_d;
-           // fla_write_e<=flag_write_d;
             flag_wirte_e<=flag_write_d;
             cond_e<=cond_d;
             flag_e<=flags;
-            //src_a_e<=rd1_d;
             rd1_e<=rd1_d;
             rd2_e<=rd2_d;
             ext_imm_e<=ext_imm_d;
-            //cond_e<=cond_d;
         end
 
     end
@@ -468,12 +371,6 @@ module execute(
     .alu_result(alu_result_e),
     .alu_flags(alu_flags),
     .swap(swap));
-
-   //assign a_m = shift_flag? src_b :alu_result; 
-   //assign a_m = alu_result_e;
-   //wd_m =  write_data_e;
-   //assign result = (mem_to_reg)? rd : alu_result;
-
 
 wire pc_src;
 wire reg_write;
@@ -526,22 +423,13 @@ module mem(
     // Memory OUT
     output reg mem_write_m,
 
-
-    //output [31:0] read_data_m,
     // ALU OUT
     output [31:0] alu_out_m,
     
-    // Memory OUT 
-    //output reg alu_result_m,
     // Memory OUT
     output reg [31:0] write_data_m,
 
     output reg [31:0] wa3_m
-
-    // Memory OUT
-    //output a_m,
-    // Memory OUT
-    //output wd_m
 );
 
 
@@ -562,16 +450,12 @@ module mem(
             mem_to_reg_m <= mem_to_reg_e;
             mem_write_m <= mem_write_e;
 
-            //alu_result_m <= alu_result_e;
             write_data_m <= write_data_e;
             wa3_m <= wa3_e;
 
         end
     end
 
-
-        //assign a_m = alu_out_m;
-        //assign wd_m = wa3_m;
 endmodule
 
 
@@ -594,8 +478,7 @@ module wb(
 
     output reg pc_src_w,
     output reg reg_write_w,
-   // output reg mem_to_reg_w,
-
+  
     output [31:0] result_w,
     output reg [31:0] wa3_w
 
@@ -653,27 +536,12 @@ module data_path (
     );
 
 
-    // instruction 
-    //wire [31:0] intr_f;
-    // reg cond;
-    // reg op;
-    // reg funct;
-    
-    // reg reg_write;
-    // reg mem_to_reg;
-    // reg mem_write;
-    // reg alu_control;
-    // reg alu_src;
-    // reg imm_src;
-    // reg reg_src;
-
 
     wire [31:0] result_w;
 
     //alu 
     wire [31:0] alu_result;
 
-    //wire [31:0] result_w;
     wire pc_src_w;
 
     wire [31:0] instr_f;
@@ -684,7 +552,6 @@ module data_path (
 
     // instruction memory IN OUT
     assign pc = pc_f;
-    //assign intr_f = instr;
 
     // deley
     wire branch_take_e;
@@ -773,7 +640,6 @@ module data_path (
         .cond_d(cond_d),
 
         // alu output
-        //[31:0] instr_d(),
         .rd1_d(rd1_d),
         .rd2_d(rd2_d),
 
@@ -842,7 +708,6 @@ module data_path (
         .mem_write_e(mem_write_e),
 
         
-        //output [31:0] a_m,
         // ALU OUTPUt
         .alu_result_e(alu_result_e),
         .write_data_e(write_data_e),
@@ -858,7 +723,6 @@ module data_path (
      wire reg_write_m;
      wire mem_to_reg_m;
     // Memory OUT
-    //output reg mem_write_m(),
      wire  mem_write_m;
      wire [31:0] read_data_m;
     // ALU OUT
@@ -891,22 +755,13 @@ module data_path (
         .mem_write_m(mem_write_m),
 
         // Memory OUT
-        //output reg mem_write_m(),
-        //output [31:0] read_data_m(),
         // ALU OUT
         .alu_out_m(alu_out_m),
         
         // Memory OUT 
-        //output reg alu_result_m(),
         // Memory OUT
-        // output reg write_data_m(),
         .write_data_m(write_data_m),
         .wa3_m(wa3_m)
-
-        // Memory OUT
-        //output a_m,
-        // Memory OUT
-        //output wd_m
     );
 
     assign we = mem_write_m;
@@ -933,25 +788,14 @@ module data_path (
 
         .pc_src_w(pc_src_w),
         .reg_write_w(reg_write_w),
-    // output reg mem_to_reg_w,
-
+    
         .result_w(result_w),
         .wa3_w(wa3_w)
     );
 
-// output reg pc_src_w,
-//     output reg reg_write_w,
-//    // output reg mem_to_reg_w,
-
-//     output result_w,
-//     output reg wa3_w
 
 
     // fowarding
-    //wire match_rd1;
-    //wire match_rd2;
-    //assign match_rd1 = wa3_m == rd1_d || wa3_w == rd1_d;
-    //assign match_rd2 = wa3_m == rd2_d || wa3_w == rd2_d;    
     assign forward_a_e = ((wa3_m == rd1_d) & reg_write_m) ? 2'b10:
                   ((wa3_w == rd1_d) & reg_write_w) ? 2'b01:
                                                  2'b00;
@@ -973,7 +817,5 @@ module data_path (
     assign pc_write_pending_f = pc_src_d | pc_src_e | pc_src_m;
 
 
-
-
-
 endmodule
+
