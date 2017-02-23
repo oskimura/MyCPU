@@ -156,9 +156,9 @@ module decode(
     reg [31:0] instr_d;
     always @(posedge clk) begin
         if (reset | flush_d) 
-        instr_d <=0;
+        instr_d <=32'b0;
         else if (stall_d) 
-            instr_d<=0;
+            instr_d<=32'b0;
         else
         instr_d <= instr_f;
     end
@@ -306,22 +306,20 @@ module execute(
 
     always @(posedge clk) begin
         if (reset || flush_e) begin
-            pc_src_e <=0;
-            reg_write_e <=0;
-            mem_to_reg_e<=0;
-            mem_write_e<=0;
-            alu_control_e<=0;
-            branch_e<=0;
-            alu_src_e<=0;
-            //fla_write_e<=0;
-            flag_wirte_e<=0;
-            cond_e<=0;
-            flag_e<=0;
-            //src_a_e<=0;
-            rd1_e<=0;
-            rd2_e<=0;
-            ext_imm_e<=0;
-            cond_e<=0;
+            pc_src_e <=1'b0;
+            reg_write_e <=1'b0;
+            mem_to_reg_e<=1'b0;
+            mem_write_e<=1'b0;
+            alu_control_e<=3'b0;
+            branch_e<=1'b0;
+            alu_src_e<=1'b0;
+            flag_wirte_e<=1'b0;
+            cond_e<=4'b0;
+            flag_e<=2'b0;
+            rd1_e<=32'b0;
+            rd2_e<=32'b0;
+            ext_imm_e<=32'b0;
+            cond_e<=4'b0;
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -435,14 +433,13 @@ module mem(
 
     always @(clk) begin
         if (reset) begin
-            pc_src_m<=0;
-            reg_write_m<=0;
-            mem_to_reg_m<=0;
-            mem_write_m<=0;
+            pc_src_m<=1'b0;
+            reg_write_m<=1'b0;
+            mem_to_reg_m<=1'b0;
+            mem_write_m<=1'b0;
 
-            //alu_result_m <=0;
-            write_data_m<=0;
-            wa3_m<=0;
+            write_data_m<=32'b0;
+            wa3_m<=32'b0;
         end
         else begin
             pc_src_m <= pc_src_e;
@@ -490,14 +487,14 @@ reg mem_to_reg_w;
 
     always @(clk) begin
         if (reset) begin
-            pc_src_w<=0;
-            reg_write_w<=0;
-            mem_to_reg_w<=0;
+            pc_src_w<=1'b0;
+            reg_write_w<=1'b0;
+            mem_to_reg_w<=1'b0;
 
             read_draw_w<=0;
-            alu_out_w<=0;
+            alu_out_w<=32'b0;
 
-            wa3_w <=0;
+            wa3_w <=32'b0;
         end
         else begin
             pc_src_w<=pc_src_m;
