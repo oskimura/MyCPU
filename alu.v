@@ -17,15 +17,26 @@ module alu(src_ina,src_inb,alu_control,
 
     always @(*) begin
         case (alu_control)
+
+            // add
             3'b000: {cout,alu_result} <=  src_a + src_b;
+            // sub
             3'b001: {cout,alu_result} <=  src_a - src_b;
-                    
+
+            // and
             3'b010: alu_result <=  src_a & src_b;
+            // or
             3'b011: alu_result <=  src_a | src_b;
 
+            // addc
             3'b100: {cout,alu_result} <= src_a + src_b + carry;
+            // subc
             3'b101: {cout,alu_result} <= src_a - src_b - carry;
+
+            // xor
             3'b111: alu_result <=  src_a ^ src_b;
+
+            // shift
         endcase
     end
 
