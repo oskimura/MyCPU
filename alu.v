@@ -1,6 +1,10 @@
 `default_nettype none
-module alu(src_ina,src_inb,alu_control,
-           alu_result,alu_flags,swap);
+module alu(src_ina,
+           src_inb,
+           alu_control,
+           alu_result,
+           alu_flags,
+           swap);
     input [31:0] src_ina;
     input [31:0] src_inb;
     input [2:0] alu_control;

@@ -1,6 +1,20 @@
 `default_nettype none
-module decoder(op,funct,rd,
-              pcs,reg_w,mem_w,mem_to_reg,alu_src,imm_src,reg_src,alu_control,flag_w,no_write,shift_flag,swap);
+module decoder(op,
+               funct,
+               rd,
+               pcs,
+               reg_w,
+               mem_w,
+               mem_to_reg,
+               alu_src,
+               imm_src,
+               reg_src,
+               alu_control,
+               flag_w,
+               no_write,
+               shift_flag,
+               swap);
+
     input [1:0] op;
     input [5:0] funct;
     input [3:0] rd;
