@@ -653,16 +653,16 @@ module data_path (
     input reset,
    
     //  instruction memory input
-    input instr,
+    input [31:0] instr,
      //  data memory  input
     input [31:0] read_data,
 
     // instruction memory output
-    output pc,
+    output [31:0] pc,
 
     // data memory output 
-    output addr_data,
-    output write_data,
+    output [31:0] addr_data,
+    output [31:0] write_data,
     // data memory werite enable output
     output we
     );
