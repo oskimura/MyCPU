@@ -15,13 +15,28 @@ module extend(instr,imm_src,
     end        
 endmodule
 
+module reg_file(clk,
+                reset,
+                we3,
+                // Rn
+                a1,
+                // Rd/Rm
+                a2,
+                // Rs
+                a3,
 
-module reg_file(clk,we3,a1,a2,a3,wd3,r15,
-                rd1,rd2);
+                wd3,
+                r15,
+                // Rn
+                rd1,
+                // Rd/Rm
+                rd2,
+                // Rs
+                rd3);
     input clk,reset,we3;
     input [3:0] a1,a2,a3;
     input [31:0] wd3,r15;
-    output [31:0] rd1,rd2;
+    output [31:0] rd1,rd2,rd3;
 
     reg [31:0] r[14:0];
 
@@ -31,31 +46,120 @@ module reg_file(clk,we3,a1,a2,a3,wd3,r15,
 
     assign rd1 = (a1==4'b1111)? r15 : r[a1];
     assign rd2 = (a2==4'b1111)? r15 : r[a2];
+
+    assign rd3 = (a3==4'b1111)? r15 : r[a3];
+
 endmodule
 
-module shift(instr, rd2,shift_result);
 
+///////////////////////////////////////////
+// shift
+module shift(imm_src, instr, rd2, rd3, imm, shift_result);
+
+    input [1:0] imm_src;
     input [11:0] instr;
+    
+    // Rd/Rm
     input [31:0] rd2;
+    // Rs
+    input [31:0] rd3;
+    input [31:0] imm;
     output reg [31:0] shift_result;
 
     wire [1:0] sh;
-    wire [3:0] rm;
+    //wire [3:0] rm;
     wire [5:0] shamt;
     wire flag;
 
-    assign {shamt,sh,flag,rm} = instr;
+    assign {shamt,sh,flag} = instr[11:4];
+
+    wire [31:0] src;
+
+    assign src = imm_src? imm :
+                 instr[4]? rd3 :
+                 shamt;
+
+    wire [31:0] ror_out;
+
+    wire carry=1'b0;
+
 
     always @(*) begin
-        case (sh) 
-            //lsl
-            2'b00: if (instr[11:4]!=0) shift_result <= rd2 << shamt;
-            // lsr
-            2'b01: shift_result <= shamt << rd2;
-        endcase
-    end
+        if (imm_src==2'b00) begin
+            if (instr[11:4]==8'b0) begin
+            // mov
+                shift_result <= src;
+            end
+        end 
+        else
+            case (sh)
+                // mov
+                    //shift_result <= instr;
+                //lsl
+                2'b00: if (instr[11:4]!=0) 
+                        shift_result <= rd2 << src;
+                // lsr
+                2'b01: shift_result <= rd2 >> src;
+                // asr
+                2'b10:
+                    shift_result <= rd2 >> src;
+                2'b11:
+                    // rrx
+                    if (instr[11:4]==0) begin
+                        shift_result <= ror_out;
+                    // ror
+                    end 
+                    else begin
+                        shift_result <= ror_out;
+                    end 
+             endcase 
+    end 
+    
 
-endmodule///////////////////////////////////////////
+// ror
+
+
+assign ror_out = 
+                 src[7:0] == 8'd 0  ? {carry, rd2                  } :  // fall through case
+                 
+                 src[4:0] == 5'd 0  ? {rd2[31], rd2                    } :  // Rs > 31
+                 src[4:0] == 5'd 1  ? {rd2[ 0], rd2[    0], rd2[31: 1]} :
+                 src[4:0] == 5'd 2  ? {rd2[ 1], rd2[ 1: 0], rd2[31: 2]} :
+                 src[4:0] == 5'd 3  ? {rd2[ 2], rd2[ 2: 0], rd2[31: 3]} :
+                 src[4:0] == 5'd 4  ? {rd2[ 3], rd2[ 3: 0], rd2[31: 4]} :
+                 src[4:0] == 5'd 5  ? {rd2[ 4], rd2[ 4: 0], rd2[31: 5]} :
+                 src[4:0] == 5'd 6  ? {rd2[ 5], rd2[ 5: 0], rd2[31: 6]} :
+                 src[4:0] == 5'd 7  ? {rd2[ 6], rd2[ 6: 0], rd2[31: 7]} :
+                 src[4:0] == 5'd 8  ? {rd2[ 7], rd2[ 7: 0], rd2[31: 8]} :
+                 src[4:0] == 5'd 9  ? {rd2[ 8], rd2[ 8: 0], rd2[31: 9]} :
+                    
+                 src[4:0] == 5'd10  ? {rd2[ 9], rd2[ 9: 0], rd2[31:10]} :
+                 src[4:0] == 5'd11  ? {rd2[10], rd2[10: 0], rd2[31:11]} :
+                 src[4:0] == 5'd12  ? {rd2[11], rd2[11: 0], rd2[31:12]} :
+                 src[4:0] == 5'd13  ? {rd2[12], rd2[12: 0], rd2[31:13]} :
+                 src[4:0] == 5'd14  ? {rd2[13], rd2[13: 0], rd2[31:14]} :
+                 src[4:0] == 5'd15  ? {rd2[14], rd2[14: 0], rd2[31:15]} :
+                 src[4:0] == 5'd16  ? {rd2[15], rd2[15: 0], rd2[31:16]} :
+                 src[4:0] == 5'd17  ? {rd2[16], rd2[16: 0], rd2[31:17]} :
+                 src[4:0] == 5'd18  ? {rd2[17], rd2[17: 0], rd2[31:18]} :
+                 src[4:0] == 5'd19  ? {rd2[18], rd2[18: 0], rd2[31:19]} :
+
+                 src[4:0] == 5'd20  ? {rd2[19], rd2[19: 0], rd2[31:20]} :
+                 src[4:0] == 5'd21  ? {rd2[20], rd2[20: 0], rd2[31:21]} :
+                 src[4:0] == 5'd22  ? {rd2[21], rd2[21: 0], rd2[31:22]} :
+                 src[4:0] == 5'd23  ? {rd2[22], rd2[22: 0], rd2[31:23]} :
+                 src[4:0] == 5'd24  ? {rd2[23], rd2[23: 0], rd2[31:24]} :
+                 src[4:0] == 5'd25  ? {rd2[24], rd2[24: 0], rd2[31:25]} :
+                 src[4:0] == 5'd26  ? {rd2[25], rd2[25: 0], rd2[31:26]} :
+                 src[4:0] == 5'd27  ? {rd2[26], rd2[26: 0], rd2[31:27]} :
+                 src[4:0] == 5'd28  ? {rd2[27], rd2[27: 0], rd2[31:28]} :
+                 src[4:0] == 5'd29  ? {rd2[28], rd2[28: 0], rd2[31:29]} :
+
+                 src[4:0] == 5'd30  ? {rd2[29], rd2[29: 0], rd2[31:30]} :
+                                                 {rd2[30], rd2[30: 0], rd2[31:31]} ;
+
+endmodule
+
 ///////////////////////////////////////////
 // fetch
 module fetch(
@@ -66,7 +170,7 @@ module fetch(
     // flag
     input pc_src_w,
     // input 
-    input instr,
+    input [31:0] instr,
 
     // stall
     input stall_f,
@@ -150,7 +254,8 @@ module decode(
     output [31:0] rd2_d,
 
     // imm
-    output [31:0] ext_imm_d    
+    output [31:0] ext_imm_d,
+    output [31:0] shift_result_d    
 );
 
     reg [31:0] instr_d;
@@ -169,14 +274,21 @@ module decode(
     wire [3:0] rd;
     wire [3:0] ra1;
     wire [3:0] ra2;
-
+    wire [3:0] ra3;
 
     assign cond_d = instr_d[31:28];
     assign op = instr_d[27:26];
     assign funct = instr_d[25:20];
+
+    // input regfile 
     assign rd = instr_d[15:12];
-    assign  ra1 = (reg_src_d[0]) ? 4'd15 :instr_d[19:16];
-    assign  ra2 = (reg_src_d[1]) ? instr_d[15:12] : instr_d[3:0];
+    // Rn
+    assign ra1 = (reg_src_d[0]) ? 4'd15 :instr_d[19:16];
+    // Rd/Rm
+    assign ra2 = (reg_src_d[1]) ? instr_d[15:12] : instr_d[3:0];
+    // Rs
+    assign ra3 = instr_d[11:8];
+    wire [31:0] rd3;
 
 
     // ext imm
@@ -190,19 +302,37 @@ module decode(
     wire [31:0] src_a,src_b;
     reg_file reg_file_u(.clk(clk),
                         .we3(reg_write_d),
+                        // Rn
                         .a1(ra1),
+                        // Rd/Rm
                         .a2(ra2),
-                        .a3(instr_d[15:12]),
+                        // Rs
+                        .a3(ra3),
                         .wd3(wa3_w),
                         .r15(pc_plus8_d),
+                        // Rn
                         .rd1(rd1_d),
-                        .rd2(rd2_d));
+                        // Rd/Rm
+                        .rd2(rd2_d),
+                        // Rs
+                        .rd3(rd3));
 
 
 
     wire no_write_d;
     wire shift_flag_d;
     wire swap_d;
+
+    wire [31:0] shift_result;
+
+    //rd1, rd2, imm
+    shift shift_u(.imm_src(imm_src_d), 
+                .instr(instr_d[11:0]), 
+                .rd2(rd1_d), 
+                .rd3(rd3), 
+                .imm(ext_imm_d), 
+                .shift_result(shift_result_d));
+
 
     decoder decoder_u(.op(op),
                 .funct(funct),
@@ -257,6 +387,9 @@ module execute(
     //ext immdiate 
     input [31:0] ext_imm_d,
 
+    // sfhit
+    input shift_flag_d,
+    input [31:0] shift_result_d,
 
     // stall
     input flush_e,
@@ -360,15 +493,17 @@ module execute(
    
   assign src_b_e = alu_src_e ? src_b : ext_imm_e;
 
-
-
+    wire [31:0] alu_result;
     alu alu_u(
     .src_ina(src_a_e),
     .src_inb(src_b_e),
     .alu_control(alu_control_e),
-    .alu_result(alu_result_e),
+    .alu_result(alu_result),
     .alu_flags(alu_flags),
     .swap(swap));
+
+
+    assign alu_result_e = shift_flag_d ? shift_result_d : alu_result;
 
 wire pc_src;
 wire reg_write;
@@ -602,6 +737,7 @@ module data_path (
 
     wire alu_src_d;
 
+    wire [31:0] shift_result;
 
     ////////////////////////////////
     // Decode
@@ -641,7 +777,8 @@ module data_path (
         .rd2_d(rd2_d),
 
         // output imm
-        .ext_imm_d(ext_imm_d)    
+        .ext_imm_d(ext_imm_d),
+        .shift_result_d(shift_result)
     );
 
 
