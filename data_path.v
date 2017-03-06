@@ -22,7 +22,7 @@ module reg_file(clk,
                 a1,
                 // Rd/Rm
                 a2,
-                // Rs
+                // Rd
                 a3,
 
                 wd3,
@@ -31,7 +31,7 @@ module reg_file(clk,
                 rd1,
                 // Rd/Rm
                 rd2,
-                // Rs
+                // Rd
                 rd3);
     input clk,reset,we3;
     input [3:0] a1,a2,a3;
@@ -334,8 +334,8 @@ module decode(
                         .a1(ra1),
                         // Rd/Rm
                         .a2(ra2),
-                        // Rs
-                        .a3(ra3),
+                        // Rd
+                        .a3(wa3_w),
 
                         .wd3(alu_out_m),
                         .r15(pc_plus8_d),
@@ -343,7 +343,7 @@ module decode(
                         .rd1(rd1_d),
                         // Rd/Rm
                         .rd2(rd2_d),
-                        // Rs
+                        // Rd
                         .rd3(rd3));
 
 
