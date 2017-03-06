@@ -226,13 +226,16 @@ module decode(
     // input reg writer 
     input we3,
     // input for A3
-    input [31:0] wa3_w,
+    input [3:0] wa3_w,
 
     // stall
     input stall_d,
     input flush_d,
+    
+    input [31:0] alu_out_m,
 
-
+    output [3:0] ra1_d,
+    output [3:0] ra2_d,
 
     // control output
     output pc_src_d,
@@ -258,6 +261,8 @@ module decode(
     // shift 
     output shift_flag_d,
     output [31:0] shift_result_d,
+
+    output [3:0] wa3_d
 );
 
     reg [31:0] instr_d;
@@ -282,6 +287,8 @@ module decode(
     assign op = instr_d[27:26];
     assign funct = instr_d[25:20];
 
+    assign wa3_d = instr_d[15:12];
+
     // input regfile 
     assign rd = instr_d[15:12];
     // Rn
@@ -298,6 +305,8 @@ module decode(
    extend extend_u(.instr(instr_d[23:0]),.imm_src(imm_src_d),
               .ext_imm(ext_imm_d));
 
+    assign ra1_d = ra1;
+    assign ra2_d = ra2;
     // reg file
     wire [31:0] pc_plus8_d;
     assign pc_plus8_d = pc_plus4_f + 4;
@@ -310,7 +319,8 @@ module decode(
                         .a2(ra2),
                         // Rs
                         .a3(ra3),
-                        .wd3(wa3_w),
+
+                        .wd3(alu_out_m),
                         .r15(pc_plus8_d),
                         // Rn
                         .rd1(rd1_d),
@@ -328,7 +338,7 @@ module decode(
     wire [31:0] shift_result;
 
     //rd1, rd2, imm
-    shift shift_u(.imm_src(imm_src_d), 
+    shift shift_u(.alu_src(alu_src_d), 
                 .instr(instr_d[11:0]), 
                 .rd2(rd1_d), 
                 .rd3(rd3), 
@@ -343,7 +353,7 @@ module decode(
                 .pcs(pc_src_d),
                 .reg_w(reg_write_d),
                 .mem_w(mem_write_d),
-                .mem_to_reg(mem_write_d),
+                .mem_to_reg(mem_to_reg_d),
                 .alu_src(alu_src_d),
                 .imm_src(imm_src_d),
                 .reg_src(reg_src_d),
@@ -379,7 +389,7 @@ module execute(
     // fowarding
     input [31:0] result_w,
     input [31:0] alu_out_m,
-    input [31:0] wa3_w,
+    input [3:0] wa3_w,
     // fowarding
     input [1:0] forward_a_e,
     input [1:0] forward_b_e,
@@ -396,6 +406,7 @@ module execute(
     // stall
     input flush_e,
 
+    input wa3_d,
     // cond OUTPUt
     output pc_src_e,
     output reg_write_e,
@@ -407,7 +418,7 @@ module execute(
     output [31:0] write_data_e,
 
     // 
-    output [31:0] wa3_e,
+    output reg [3:0] wa3_e,
     output branch_take_e    
 );
 
@@ -455,6 +466,7 @@ module execute(
             rd2_e<=32'b0;
             ext_imm_e<=32'b0;
             cond_e<=4'b0;
+            wa3_e <= 4'b0;
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -470,6 +482,7 @@ module execute(
             rd1_e<=rd1_d;
             rd2_e<=rd2_d;
             ext_imm_e<=ext_imm_d;
+            wa3_e <= wa3_d;
         end
 
     end
@@ -549,7 +562,7 @@ module mem(
     input [31:0] alu_result_e,
 
     input [31:0] write_data_e,
-    input [31:0] wa3_e,
+    input [3:0] wa3_e,
 
     // output 
     output reg pc_src_m,
@@ -564,9 +577,10 @@ module mem(
     // Memory OUT
     output reg [31:0] write_data_m,
 
-    output reg [31:0] wa3_m
+    output reg [3:0] wa3_m
 );
 
+    reg [31:0] alu_result_m;
 
     always @(clk) begin
         if (reset) begin
@@ -577,6 +591,7 @@ module mem(
 
             write_data_m<=32'b0;
             wa3_m<=32'b0;
+            alu_result_m=32'b0;
         end
         else begin
             pc_src_m <= pc_src_e;
@@ -586,9 +601,11 @@ module mem(
 
             write_data_m <= write_data_e;
             wa3_m <= wa3_e;
+            alu_result_m <= alu_result_e;
 
         end
     end
+    assign alu_out_m = alu_result_m;
 
 endmodule
 
@@ -608,18 +625,18 @@ module wb(
 
     input [31:0] rd_m,
     input [31:0] alu_out_m,
-    input [31:0] wa3_m,
+    input [3:0] wa3_m,
 
     output reg pc_src_w,
     output reg reg_write_w,
   
     output [31:0] result_w,
-    output reg [31:0] wa3_w
+    output reg [3:0] wa3_w
 
 );
 
 reg read_draw_w;
-reg alu_out_w;
+reg [31:0] alu_out_w;
 reg mem_to_reg_w;
 
     always @(clk) begin
@@ -732,7 +749,7 @@ module data_path (
     wire [31:0] rd2_d;
     wire [31:0] ext_imm_d;
 
-    wire [31:0] wa3_w;
+    wire [3:0] wa3_w;
 
 
     wire reg_write_w;
@@ -742,6 +759,12 @@ module data_path (
     wire [31:0] shift_result;
 
     wire shift_flag;
+
+    wire [3:0] wa3_d;
+
+    wire [3:0] ra1_d;
+    wire [3:0] ra2_d;
+
     ////////////////////////////////
     // Decode
     decode decode_u(
@@ -760,6 +783,11 @@ module data_path (
         // stall
         .stall_d(ldr_stall),
         .flush_d(pc_write_pending_f | pc_src_w | branch_take_e),
+        
+        .alu_out_m(alu_out_m),
+        .ra1_d(ra1_d),
+        .ra2_d(ra2_d),
+
 
         // control output
         .pc_src_d(pc_src_d),
@@ -783,6 +811,7 @@ module data_path (
         .ext_imm_d(ext_imm_d),
         .shift_flag_d(shift_flag),
         .shift_result_d(shift_result),
+        .wa3_d(wa3_d)
     );
 
 
@@ -793,7 +822,7 @@ module data_path (
   
      wire [31:0] alu_result_e;
      wire [31:0] write_data_e;
-     wire [31:0] wa3_e;
+     wire [3:0] wa3_e;
 
      wire [1:0] forward_a_e;
      wire [1:0] forward_b_e;
@@ -836,6 +865,10 @@ module data_path (
         //ext immdiate 
         .ext_imm_d(ext_imm_d),
 
+            // sfhit
+            .shift_flag_d(shift_flag),
+            .shift_result_d(shift_result),
+
         // stall
         .flush_e(ldr_stall | branch_take_e),
 
@@ -866,7 +899,7 @@ module data_path (
     // ALU OUT
      wire [31:0] alu_out_m;
      wire [31:0] write_data_m;
-     wire [31:0] wa3_m;
+     wire [3:0] wa3_m;
 
     ////////////////////////////////
     // Memory 
@@ -948,7 +981,7 @@ module data_path (
     wire flush_e;
 
     wire ldr_stall;
-    assign ldr_stall = (rd1_d == wa3_e) | (rd2_d == wa3_e) & mem_to_reg_e;
+    assign ldr_stall = ((ra1_d == wa3_e) | (ra2_d == wa3_e)) & mem_to_reg_e;
 
     // delay 
     wire pc_write_pending_f;
