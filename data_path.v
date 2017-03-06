@@ -56,7 +56,7 @@ endmodule
 // shift
 module shift(imm_src, instr, rd2, rd3, imm, shift_result);
 
-    input [1:0] imm_src;
+    input  alu_src;
     input [11:0] instr;
     
     // Rd/Rm
@@ -75,7 +75,7 @@ module shift(imm_src, instr, rd2, rd3, imm, shift_result);
 
     wire [31:0] src;
 
-    assign src = imm_src? imm :
+    assign src = alu_src? imm :
                  instr[4]? rd3 :
                  shamt;
 
@@ -85,7 +85,7 @@ module shift(imm_src, instr, rd2, rd3, imm, shift_result);
 
 
     always @(*) begin
-        if (imm_src==2'b00) begin
+        if (alu_src==1'b1) begin
             if (instr[11:4]==8'b0) begin
             // mov
                 shift_result <= src;
@@ -255,7 +255,9 @@ module decode(
 
     // imm
     output [31:0] ext_imm_d,
-    output [31:0] shift_result_d    
+    // shift 
+    output shift_flag_d,
+    output [31:0] shift_result_d,
 );
 
     reg [31:0] instr_d;
@@ -320,7 +322,7 @@ module decode(
 
 
     wire no_write_d;
-    wire shift_flag_d;
+    //wire shift_flag_d;
     wire swap_d;
 
     wire [31:0] shift_result;
@@ -739,6 +741,7 @@ module data_path (
 
     wire [31:0] shift_result;
 
+    wire shift_flag;
     ////////////////////////////////
     // Decode
     decode decode_u(
@@ -778,7 +781,8 @@ module data_path (
 
         // output imm
         .ext_imm_d(ext_imm_d),
-        .shift_result_d(shift_result)
+        .shift_flag_d(shift_flag),
+        .shift_result_d(shift_result),
     );
 
 
