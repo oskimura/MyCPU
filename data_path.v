@@ -42,6 +42,23 @@ module reg_file(clk,
 
     always @(clk) begin
       if (we3) r[a3] <= wd3;
+      else if (reset) begin
+        r[0] <= 0;
+        r[1] <= 0;
+        r[2] <= 0;
+        r[3] <= 0;
+        r[4] <= 0;
+        r[5] <= 0;
+        r[6] <= 0;
+        r[7] <= 0;
+        r[8] <= 0;
+        r[9] <= 0;
+        r[10] <= 0;
+        r[11] <= 0;
+        r[12] <= 0;
+        r[13] <= 0;
+        r[14] <= 0;
+      end
     end
 
     assign rd1 = (a1==4'b1111)? r15 : r[a1];
