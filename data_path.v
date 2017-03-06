@@ -272,6 +272,7 @@ module decode(
     //output ,
     output [31:0] rd1_d,
     output [31:0] rd2_d,
+    output swap_d,
 
     // imm
     output [31:0] ext_imm_d,
@@ -350,7 +351,7 @@ module decode(
 
     wire no_write_d;
     //wire shift_flag_d;
-    wire swap_d;
+    //wire swap_d;
 
     wire [31:0] shift_result;
 
@@ -400,6 +401,7 @@ module execute(
 
     // ALU input
     input [2:0] alu_control_d,
+    input swap_d,
     input alu_src_d,
     
     input [1:0] imm_src_d,
@@ -467,6 +469,8 @@ module execute(
 
     reg  flags;
 
+    reg swap_e;
+
     always @(posedge clk) begin
         if (reset || flush_e) begin
             pc_src_e <=1'b0;
@@ -484,6 +488,7 @@ module execute(
             ext_imm_e<=32'b0;
             cond_e<=4'b0;
             wa3_e <= 4'b0;
+            swap_e <= 1'b0;
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -500,15 +505,14 @@ module execute(
             rd2_e<=rd2_d;
             ext_imm_e<=ext_imm_d;
             wa3_e <= wa3_d;
+            swap_e <= swap_d;
         end
 
     end
 
     wire [3:0] alu_flags;
 
-
-  
-    wire swap;
+    //wire swap;
     // alu
 
     wire [31:0] src_b;
@@ -532,7 +536,7 @@ module execute(
     .alu_control(alu_control_e),
     .alu_result(alu_result),
     .alu_flags(alu_flags),
-    .swap(swap));
+    .swap(swap_e));
 
 
     assign alu_result_e = shift_flag_d ? shift_result_d : alu_result;
@@ -703,8 +707,6 @@ module data_path (
     output we
     );
 
-
-
     wire [31:0] result_w;
 
     //alu 
@@ -782,6 +784,8 @@ module data_path (
     wire [3:0] ra1_d;
     wire [3:0] ra2_d;
 
+    wire swap_d;
+
     ////////////////////////////////
     // Decode
     decode decode_u(
@@ -823,6 +827,7 @@ module data_path (
         // alu output
         .rd1_d(rd1_d),
         .rd2_d(rd2_d),
+        .swap_d(swap_d),
 
         // output imm
         .ext_imm_d(ext_imm_d),
@@ -863,6 +868,7 @@ module data_path (
 
         // ALU input
         .alu_control_d(alu_control_d),
+        .swap_d(swap_d),
         .alu_src_d(alu_src_d),
         
         .imm_src_d(imm_src_d),
