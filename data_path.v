@@ -471,6 +471,8 @@ module execute(
 
     reg  flags;
 
+    reg shift_flag_e;
+    reg [31:0] shift_result_e;
     reg swap_e;
 
     always @(posedge clk) begin
@@ -509,6 +511,8 @@ module execute(
             rd2_e<=rd2_d;
             ext_imm_e<=ext_imm_d;
             wa3_e <= wa3_d;
+            shift_flag_e <= shift_flag_d;
+            shift_result_e <= shift_result_d;
             swap_e <= swap_d;
         end
 
@@ -543,7 +547,7 @@ module execute(
     .swap(swap_e));
 
 
-    assign alu_result_e = shift_flag_d ? shift_result_d : alu_result;
+    assign alu_result_e = shift_flag_e ? shift_result_e : alu_result;
 
 wire pc_src;
 wire reg_write;
