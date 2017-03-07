@@ -330,6 +330,7 @@ module decode(
     assign pc_plus8_d = pc_plus4_f + 4;
     wire [31:0] src_a,src_b;
     reg_file reg_file_u(.clk(clk),
+                        .reset(reset),
                         .we3(reg_write_d),
                         // Rn
                         .a1(ra1),
