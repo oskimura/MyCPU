@@ -500,7 +500,7 @@ module execute(
             pc_src_e <=pc_src_d;
             reg_write_e <=reg_write_d;
             mem_to_reg_e<=mem_to_reg_d;
-            mem_write_e<=mem_write_e;
+            mem_write_e<=mem_write_d;
             alu_control_e<=alu_control_d;
             branch_e<=branch_d;
             alu_src_e<=alu_src_d;
@@ -536,6 +536,7 @@ module execute(
                    rd2_d;
    
   assign src_b_e = alu_src_e ? ext_imm_e : src_b;
+   assign write_data_e = src_b;
 
     wire [31:0] alu_result;
     alu alu_u(

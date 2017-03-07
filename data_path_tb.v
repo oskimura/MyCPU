@@ -40,6 +40,13 @@ end
          $finish;
     end
 
+
+dmem dmem_u( .clk(clk),
+             .we(we),
+             .addr(addr_data),
+             .write_data(write_data),
+             .read_data(addr_data));
+
 data_path data_path_u(
      .clk(clk),
      .reset(reset),
@@ -80,6 +87,25 @@ initial begin
     #50 instr=32'b00000010010000110100000000000001;
     // add r3 r3 #1
     #50 instr=32'b00000000100000110011000000000011;
+    // str r11 [r5] #-26
+    //#50 instr=32'b1110 01 000000 0101 1011 0000 00011010
+    #50 instr=32'b11100100000001011011000000011010; 
 end
 
+endmodule
+
+
+module dmem(input clk,
+            input we,
+            input [31:0] addr,
+            input [31:0] write_data,
+            output [31:0] read_data);
+
+    reg [31:0] ram[63:0];
+    assign read_data = ram[addr[31:2]];
+
+    always @(posedge clk) begin
+        if (we)
+            ram[addr[31:2]] <= write_data;
+    end
 endmodule
