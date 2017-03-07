@@ -58,8 +58,9 @@ data_path data_path_u(
     // data memory werite enable output
      .we(we)
     );
+//                  .wd(wd));
 
-                  .wd(wd));
+
 initial begin
     #1 reset=0; 
 

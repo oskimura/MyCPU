@@ -40,7 +40,7 @@ module reg_file(clk,
 
     reg [31:0] r[14:0];
 
-    always @(clk) begin
+    always @(posedge clk) begin
       if (we3) r[a3] <= wd3;
       else if (reset) begin
         r[0] <= 0;
@@ -611,7 +611,7 @@ module mem(
 
     reg [31:0] alu_result_m;
 
-    always @(clk) begin
+    always @(posedge clk) begin
         if (reset) begin
             pc_src_m<=1'b0;
             reg_write_m<=1'b0;
@@ -668,7 +668,7 @@ reg read_draw_w;
 reg [31:0] alu_out_w;
 reg mem_to_reg_w;
 
-    always @(clk) begin
+    always @(posedge clk) begin
         if (reset) begin
             pc_src_w<=1'b0;
             reg_write_w<=1'b0;
@@ -1000,12 +1000,12 @@ module data_path (
 
 
     // fowarding
-    assign forward_a_e = ((wa3_m == rd1_d) & reg_write_m) ? 2'b10:
-                  ((wa3_w == rd1_d) & reg_write_w) ? 2'b01:
-                                                 2'b00;
+    assign forward_a_e = ((wa3_m == ra1_d) & reg_write_m) ? 2'b10:
+                         ((wa3_w == ra1_d) & reg_write_w) ? 2'b01:
+                                                            2'b00;
 
-    assign forward_b_e = (wa3_m == rd2_d) & (reg_write_m) ? 2'b10:
-                         (wa3_w == rd2_d) & (reg_write_w) ? 2'b01:
+    assign forward_b_e = (wa3_m == ra2_d) & (reg_write_m) ? 2'b10:
+                         (wa3_w == ra2_d) & (reg_write_w) ? 2'b01:
                                                             2'b00;                                  
 
     // stall

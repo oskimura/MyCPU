@@ -262,3 +262,4 @@ alu_op);
     //assign alu_src_a = () 1;
     //assign {reg_w,mem_w,ir_write,next_pc,adr_src,result_src,alu_src_a,alu_src_b} = control;
 
+endmodule
