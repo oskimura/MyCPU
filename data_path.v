@@ -71,7 +71,7 @@ endmodule
 
 ///////////////////////////////////////////
 // shift
-module shift(imm_src, instr, rd2, rd3, imm, shift_result);
+module shift(alu_src, instr, rd2, rd3, imm, shift_result);
 
     input  alu_src;
     input [11:0] instr;
