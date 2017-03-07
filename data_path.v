@@ -535,7 +535,7 @@ module execute(
                    (forward_b_e == 2'b10) ? alu_out_m :
                    rd2_d;
    
-  assign src_b_e = alu_src_e ? src_b : ext_imm_e;
+  assign src_b_e = alu_src_e ? ext_imm_e : src_b;
 
     wire [31:0] alu_result;
     alu alu_u(
