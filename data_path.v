@@ -903,6 +903,8 @@ module data_path (
         // stall
         .flush_e(ldr_stall | branch_take_e),
 
+        .wa3_d(wa3_d),
+
         // cond OUTPUT
         .pc_src_e(pc_src_e),
         .reg_write_e(reg_write_e),
