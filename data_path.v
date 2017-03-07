@@ -426,7 +426,8 @@ module execute(
     // stall
     input flush_e,
 
-    input wa3_d,
+    input [3:0] wa3_d,
+
     // cond OUTPUt
     output pc_src_e,
     output reg_write_e,
@@ -456,15 +457,15 @@ module execute(
 
     // 
     reg alu_src_e;
-    reg ext_imm_e;
+    reg [31:0] ext_imm_e;
     
     reg [2:0] alu_control_e;
     reg [3:0]cond_e;
 
     reg [1:0] flag_write_e;
 
-    reg rd1_e;
-    reg rd2_e;
+    reg [31:0] rd1_e;
+    reg [31:0] rd2_e;
 
     reg flag_e;
 
@@ -489,6 +490,8 @@ module execute(
             ext_imm_e<=32'b0;
             cond_e<=4'b0;
             wa3_e <= 4'b0;
+            shift_flag_e <=0;
+            shift_result_e <= 32'b0;
             swap_e <= 1'b0;
         end
         else begin
@@ -670,7 +673,7 @@ reg mem_to_reg_w;
             read_draw_w<=0;
             alu_out_w<=32'b0;
 
-            wa3_w <=32'b0;
+            wa3_w <=4'b0;
         end
         else begin
             pc_src_w<=pc_src_m;
