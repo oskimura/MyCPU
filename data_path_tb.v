@@ -3,7 +3,7 @@ module data_path_tb;
 reg              clk,
                  reset;
 
-    reg [31:0] read_data;
+    
     reg [31:0] instr;         
 
 
@@ -11,6 +11,8 @@ reg              clk,
     // data memory output 
     wire [31:0] addr_data;
     wire [31:0] write_data;
+    // data memory input
+    wire [31:0] read_data;
     // data memory werite enable output
     wire  we;
 
@@ -45,7 +47,7 @@ dmem dmem_u( .clk(clk),
              .we(we),
              .addr(addr_data),
              .write_data(write_data),
-             .read_data(addr_data));
+             .read_data(read_data));
 
 data_path data_path_u(
      .clk(clk),
@@ -75,7 +77,6 @@ initial begin
      #10 reset = 1;
      #50 reset = 0;
      
-     read_data = 0;
     // // mov
     //instr=32'b0000000110100000001100000000001;
    
@@ -87,9 +88,12 @@ initial begin
     #50 instr=32'b00000010010000110100000000000001;
     // add r3 r3 #1
     #50 instr=32'b00000000100000110011000000000011;
-    // str r11 [r5] #-26
-    //#50 instr=32'b1110 01 000000 0101 1011 0000 00011010
-    #50 instr=32'b11100100000001011011000000011010; 
+    // str r3 [r5] #-26
+    //#50 instr=32'b1110 01 000000 0101 0011 0000 00011010
+      #50 instr=32'b11100100000001010011000000011010; 
+    // ldr r3 [r5] #-26
+    //#50 instr=32'b1110 01 000001 0101 0011 0000 00011010
+      #50 instr=32'b11100100000101010011000000011010;
 end
 
 endmodule

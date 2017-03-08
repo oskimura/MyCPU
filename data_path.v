@@ -935,6 +935,12 @@ module data_path (
      wire [31:0] write_data_m;
      wire [3:0] wa3_m;
 
+
+    // data  memory IN OUT
+    assign we = mem_write_m;
+    assign addr_data = alu_out_m;
+    assign write_data = write_data_m;
+
     ////////////////////////////////
     // Memory 
     mem mem_u(
@@ -969,12 +975,7 @@ module data_path (
         .wa3_m(wa3_m)
     );
 
-    assign we = mem_write_m;
 
-
-    // data  memory IN OUT
-    assign addr_data = alu_out_m;
-    assign write_data = write_data_m;
 
 
     ////////////////////////////////
