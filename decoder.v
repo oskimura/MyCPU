@@ -13,7 +13,8 @@ module decoder(op,
                flag_w,
                no_write,
                shift_flag,
-               swap);
+               swap,
+               branch);
 
     input [1:0] op;
     input [5:0] funct;
@@ -25,9 +26,10 @@ module decoder(op,
     output no_write;
     output shift_flag;
     output swap;
+    output branch;
 
     reg [9:0] control;
-    wire branch,alu_op;
+    wire alu_op;
 
     always @(*) begin
         case (op)

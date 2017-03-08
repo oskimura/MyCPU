@@ -221,7 +221,7 @@ module fetch(
          end
          else begin 
             //pc_f <= #1 pc_next;
-            pc_f <= #1 pc;
+            pc_f <= pc;
             instr_f <= instr;
          end
    end
