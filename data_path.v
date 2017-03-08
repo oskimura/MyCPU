@@ -207,6 +207,7 @@ module fetch(
 
    assign pc_next = (pc_src_w)? result_w : pc_plus4_f;
    assign pc = branch_take_e ? alu_result_e : pc_next;
+   assign pc_plus4_f = pc_f + 4;
 
 
    always @(posedge clk or posedge reset) begin
@@ -224,8 +225,6 @@ module fetch(
             instr_f <= instr;
          end
    end
-
-   assign pc_plus4_f = pc_f + 4;
 
 endmodule
 
@@ -380,7 +379,8 @@ module decode(
                 .flag_w(flag_write_d),
                 .no_write(no_write_d),
                 .shift_flag(shift_flag_d),
-                .swap(swap_d));
+                .swap(swap_d),
+                .branch(branch_d));
 
 endmodule
 
