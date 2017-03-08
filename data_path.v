@@ -24,6 +24,8 @@ module reg_file(clk,
                 a2,
                 // Rd
                 a3,
+                // Rs
+                a4,
 
                 wd3,
                 r15,
@@ -32,11 +34,13 @@ module reg_file(clk,
                 // Rd/Rm
                 rd2,
                 // Rd
-                rd3);
+                rd3,
+                // Rs
+                rd4);
     input clk,reset,we3;
-    input [3:0] a1,a2,a3;
+    input [3:0] a1,a2,a3,a4;
     input [31:0] wd3,r15;
-    output [31:0] rd1,rd2,rd3;
+    output [31:0] rd1,rd2,rd3,rd4;
 
     reg [31:0] r[14:0];
 
@@ -65,6 +69,7 @@ module reg_file(clk,
     assign rd2 = (a2==4'b1111)? r15 : r[a2];
 
     assign rd3 = (a3==4'b1111)? r15 : r[a3];
+    assign rd4 = (a3==4'b1111)? r15 : r[a4];
 
 endmodule
 
@@ -298,7 +303,9 @@ module decode(
     wire [3:0] rd;
     wire [3:0] ra1;
     wire [3:0] ra2;
-    wire [3:0] ra3;
+    wire [3:0] ra4;
+    //Rs
+    wire [31:0] rd4;
 
     assign cond_d = instr_d[31:28];
     assign op = instr_d[27:26];
@@ -313,7 +320,7 @@ module decode(
     // Rd/Rm
     assign ra2 = (reg_src_d[1]) ? instr_d[15:12] : instr_d[3:0];
     // Rs
-    assign ra3 = instr_d[11:8];
+    assign ra4 = instr_d[11:8];
     wire [31:0] rd3;
 
 
@@ -337,6 +344,8 @@ module decode(
                         .a2(ra2),
                         // Rd
                         .a3(wa3_w),
+                        // Rs
+                        .a4(ra4),
 
                         .wd3(alu_out_m),
                         .r15(pc_plus8_d),
@@ -345,7 +354,9 @@ module decode(
                         // Rd/Rm
                         .rd2(rd2_d),
                         // Rd
-                        .rd3(rd3));
+                        .rd3(rd3),
+                        // Rs
+                        .rd4(rd4));
 
 
 
