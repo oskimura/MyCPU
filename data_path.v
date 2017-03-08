@@ -207,6 +207,7 @@ module fetch(
 
    assign pc_next = (pc_src_w)? result_w : pc_plus4_f;
    assign pc = branch_take_e ? alu_result_e : pc_next;
+   assign pc_plus4_f = pc_f + 4;
 
 
    always @(posedge clk or posedge reset) begin
@@ -224,8 +225,6 @@ module fetch(
             instr_f <= instr;
          end
    end
-
-   assign pc_plus4_f = pc_f + 4;
 
 endmodule
 
@@ -379,7 +378,8 @@ module decode(
                 .flag_w(flag_write_d),
                 .no_write(no_write_d),
                 .shift_flag(shift_flag_d),
-                .swap(swap_d));
+                .swap(swap_d),
+                .branch(branch_d));
 
 endmodule
 
@@ -934,6 +934,12 @@ module data_path (
      wire [31:0] write_data_m;
      wire [3:0] wa3_m;
 
+
+    // data  memory IN OUT
+    assign we = mem_write_m;
+    assign addr_data = alu_out_m;
+    assign write_data = write_data_m;
+
     ////////////////////////////////
     // Memory 
     mem mem_u(
@@ -968,12 +974,7 @@ module data_path (
         .wa3_m(wa3_m)
     );
 
-    assign we = mem_write_m;
 
-
-    // data  memory IN OUT
-    assign addr_data = alu_out_m;
-    assign write_data = write_data_m;
 
 
     ////////////////////////////////
