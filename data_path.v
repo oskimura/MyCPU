@@ -587,15 +587,17 @@ cond_logic cond_logic_u(
     .mem_w(mem_write_e),
     .flag_w(flag_write_e),
     .cond(cond_e),
+    // delay
+    .branch(branch_e),
     .alu_flag(alu_flags),
     //output
     .pc_src(pc_src),
     .reg_write(reg_write),
     .mem_write(mem_write),
-    .no_write(no_write));
+    .no_write(no_write),
+    .branch_take(branch_take_e));
 
     // delay
-    assign branch_take_e = branch_e;
 
 endmodule
 

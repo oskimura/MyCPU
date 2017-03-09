@@ -1,12 +1,16 @@
 `default_nettype none
 module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
-                 pc_src,reg_write,mem_write,no_write);
+                 branch,
+                 pc_src,reg_write,mem_write,no_write,
+                 branch_take);
     input clk,reset,pcs,reg_w,mem_w;
     input [1:0] flag_w;
     input [3:0] alu_flag,cond;
+    input branch;
 
     output pc_src,reg_write,mem_write;
     input no_write;
+    output branch_take;
 
     wire cond_ex;
     
@@ -36,7 +40,8 @@ module cond_logic(clk,reset,pcs,reg_w,mem_w,flag_w,cond,alu_flag,
     
     assign pc_src = pcs & cond_ex;
     assign reg_write = reg_w & cond_ex & ~no_write;
-    assign mem_write = (mem_w & cond_ex)?1:0; 
+    assign mem_write = (mem_w & cond_ex)?1:0;
+    assign branch_take = branch & cond_ex;
 
 endmodule
 
