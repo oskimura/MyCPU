@@ -40,7 +40,6 @@ module alu(src_ina,
             // xor
             3'b111: alu_result <=  src_a ^ src_b;
 
-            // shift
         endcase
     end
 

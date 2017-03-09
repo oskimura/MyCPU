@@ -273,7 +273,6 @@ module decode(
     output [3:0] cond_d,
 
     // alu output
-    //output ,
     output [31:0] rd1_d,
     output [31:0] rd2_d,
     output swap_d,
@@ -289,8 +288,8 @@ module decode(
 
     reg [31:0] instr_d;
     always @(posedge clk) begin
-        if (reset | flush_d) 
-        instr_d <=32'b0;
+        if (reset) 
+            instr_d <=32'b0;
         else if (stall_d) 
             instr_d<=32'b0;
         else
@@ -471,7 +470,7 @@ module execute(
     reg [31:0] ext_imm_e;
     
     reg [2:0] alu_control_e;
-    reg [3:0]cond_e;
+    reg [3:0] cond_e;
 
     reg [1:0] flag_write_e;
 
@@ -545,9 +544,8 @@ module execute(
                    (forward_b_e == 2'b01) ? result_w :
                    (forward_b_e == 2'b10) ? alu_out_m :
                    rd2_d;
-   
-  assign src_b_e = alu_src_e ? ext_imm_e : src_b;
    assign write_data_e = src_b;
+   assign src_b_e = alu_src_e ? ext_imm_e : src_b;
 
     wire [31:0] alu_result;
     alu alu_u(
@@ -664,6 +662,7 @@ module wb(
     input reg_write_m,
     input mem_to_reg_m,
 
+    // input memory
     input [31:0] rd_m,
     input [31:0] alu_out_m,
     input [3:0] wa3_m,

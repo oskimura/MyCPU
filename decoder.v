@@ -28,13 +28,14 @@ module decoder(op,
     output swap;
     output branch;
 
+    // main decoder       
     reg [9:0] control;
     wire alu_op;
 
     always @(*) begin
         case (op)
             2'd0:
-                // dp reb
+                // dp reg
                 if (funct[5]) begin
                     control <= 10'b0001001x01;
                 end
@@ -59,6 +60,8 @@ module decoder(op,
     assign {branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op} = control;
     wire [3:0] cmd;
     assign cmd = funct[4:1];
+
+    // alu decoder
     always @(*) begin
         if (alu_op) begin
             
@@ -75,6 +78,7 @@ module decoder(op,
                 4'b1010: alu_control <= 3'b001;
                 // tst
                 4'b1000: alu_control <= 3'b010;
+                // shift
                 // lsl
                 4'b1101: alu_control <= 3'b0xx;
                 // cmn
@@ -97,7 +101,9 @@ module decoder(op,
         end
     end
 
+    // neg zero
     assign flag_w[1] = alu_op & funct[0];
+    // carry overflow
     assign flag_w[0] = alu_op & funct[0] & 
                             (alu_control == 3'b00 || 
                              alu_control == 3'b01);
@@ -111,6 +117,7 @@ module decoder(op,
     assign pcs = ((rd==4'd15)&reg_w)|branch;
     assign swap = (cmd==4'b0011)?1:0;
 endmodule
+
 `define Fetch 5'd0
 `define Decode 5'd1
 `define MemAddr 5'd2
