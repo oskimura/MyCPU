@@ -1,5 +1,5 @@
 `default_nettype none
-module arm(clk,reset,
+module cpu(clk,reset,
 
            instr,pc,
 
