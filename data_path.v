@@ -215,7 +215,7 @@ module fetch(
     input [31:0]alu_result_e,
 
     // instuction  Memory
-    output reg [31:0] instr_f,
+    output  [31:0] instr_f,
     // program counter
     output reg [31:0] pc_f,
     output [31:0] pc_plus4_f    
@@ -231,19 +231,17 @@ module fetch(
    always @(posedge clk or posedge reset) begin
          if (reset) begin 
              pc_f <= 32'b0;
-             instr_f <=32'b0;
+             //instr_f <=32'b0;
          end
          else if (stall_f) begin
             pc_f<=pc_f;
-            instr_f<=instr_f;
          end
          else begin 
             //pc_f <= #1 pc_next;
             pc_f <= pc;
-            instr_f <= instr;
          end
    end
-
+    assign instr_f = instr;
 endmodule
 
 
