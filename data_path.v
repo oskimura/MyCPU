@@ -18,6 +18,7 @@ endmodule
 module reg_file(clk,
                 reset,
                 we3,
+                link,
                 // Rn
                 a1,
                 // Rd/Rm
@@ -37,15 +38,25 @@ module reg_file(clk,
                 rd3,
                 // Rs
                 rd4);
-    input clk,reset,we3;
+    input clk,reset,we3,link;
     input [3:0] a1,a2,a3,a4;
     input [31:0] wd3,r15;
     output [31:0] rd1,rd2,rd3,rd4;
 
+    wire [31:0] r14;
+    wire [31:0] r15;
+    
     reg [31:0] r[14:0];
 
     always @(posedge clk) begin
-      if (we3) r[a3] <= wd3;
+      if (we3) begin 
+        r[a3] <= wd3;
+      end
+              // bl 
+      else if (link) begin
+            r[13] <= r15 -4;
+        end
+
       else if (reset) begin
         r[0] <= 0;
         r[1] <= 0;
@@ -70,6 +81,8 @@ module reg_file(clk,
 
     assign rd3 = (a3==4'b1111)? r15 : r[a3];
     assign rd4 = (a3==4'b1111)? r15 : r[a4];
+
+    assign r14 = r[13];
 
 endmodule
 
@@ -337,6 +350,7 @@ module decode(
     reg_file reg_file_u(.clk(clk),
                         .reset(reset),
                         .we3(reg_write_d),
+                        .link(link),
                         // Rn
                         .a1(ra1),
                         // Rd/Rm
@@ -374,6 +388,7 @@ module decode(
                 .shift_result(shift_result_d));
 
 
+    wire link;
     decoder decoder_u(.op(op),
                 .funct(funct),
                 .rd(rd),
@@ -390,7 +405,8 @@ module decode(
                 .no_write(no_write_d),
                 .shift_flag(shift_flag_d),
                 .swap(swap_d),
-                .branch(branch_d));
+                .branch(branch_d),
+                .link(link));
 
 endmodule
 
