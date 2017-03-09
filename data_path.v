@@ -54,7 +54,7 @@ module reg_file(clk,
       end
               // bl 
       else if (link) begin
-            r[13] <= r15 -4;
+            r[14] <= r15 -4;
         end
 
       else if (reset) begin
@@ -82,7 +82,7 @@ module reg_file(clk,
     assign rd3 = (a3==4'b1111)? r15 : r[a3];
     assign rd4 = (a3==4'b1111)? r15 : r[a4];
 
-    assign r14 = r[13];
+    assign r14 = r[14];
 
 endmodule
 
