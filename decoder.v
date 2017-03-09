@@ -14,7 +14,8 @@ module decoder(op,
                no_write,
                shift_flag,
                swap,
-               branch);
+               branch,
+               link);
 
     input [1:0] op;
     input [5:0] funct;
@@ -27,6 +28,7 @@ module decoder(op,
     output shift_flag;
     output swap;
     output branch;
+    output link;
 
     // main decoder       
     reg [9:0] control;
@@ -38,6 +40,10 @@ module decoder(op,
                 // dp reg
                 if (funct[5]) begin
                     control <= 10'b0001001x01;
+                end
+                // bx
+                else if (funct==6'b010010) begin
+                    control <= 10'b1001000010;    
                 end
                 // dp imm
                 else begin
@@ -56,6 +62,9 @@ module decoder(op,
                 control <= 10'b1001100x10;
         endcase
     end
+
+    // bl
+    assign link = (branch & funct[4])? 1'b1 : 1'b0;
 
     assign {branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op} = control;
     wire [3:0] cmd;
@@ -112,10 +121,10 @@ module decoder(op,
                        cmd == 4'b1001 ||
                        cmd == 4'b111) && alu_op 
                       ? 1'b1 : 1'b0;
-    assign shift_flag = (cmd==4'b1101 )? 1'b1 : 1'b0;
+    assign shift_flag = (cmd==4'b1101)||(branch && funct==6'b010010)? 1'b1 : 1'b0;
 
     assign pcs = ((rd==4'd15)&reg_w)|branch;
-    assign swap = (cmd==4'b0011)?1:0;
+    assign swap = (cmd==4'b0011)||(branch && funct==6'b010010)? 1 : 0;
 endmodule
 
 `define Fetch 5'd0
