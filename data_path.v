@@ -389,7 +389,7 @@ module decode(
     //rd1, rd2, imm
     shift shift_u(.alu_src(alu_src_d), 
                 .instr(instr_d[11:0]), 
-                .rd2(rd1_d), 
+                .rd2(rd2_d), 
                 .rd3(rd3), 
                 .imm(ext_imm_d), 
                 .shift_result(shift_result_d));
