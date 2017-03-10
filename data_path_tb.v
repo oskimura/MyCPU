@@ -125,6 +125,12 @@ initial begin
     $display("bx r14");
     #10 instr=32'b00000011101000000011000000000010;
     #10 $display("mov r6 2");
+    $display("mov r6 2");
+
+    // swi
+    #10 32'b00001111000000000000000000000000;
+    $display("swi");
+
 
 end
 
