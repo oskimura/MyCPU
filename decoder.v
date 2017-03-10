@@ -43,7 +43,7 @@ module decoder(op,
                 end
                 // bx
                 else if (funct==6'b010010) begin
-                    control <= 10'b1001000010;    
+                    control <= 10'b1000000010;    
                 end
                 // dp imm
                 else begin

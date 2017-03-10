@@ -23,7 +23,7 @@ initial begin
         $dumpfile("wave.vcd");
         $dumpvars(0, data_path_u);
     
-    $monitor("instr=%b,read_data=%b,pc=%b,addr_data=%b,write_data=%b,we=%b",instr,read_data,pc,addr_data,write_data,we);
+    $monitor("instr=%b,read_data=%b,pc=%x,addr_data=%b,write_data=%b,we=%b",instr,read_data,pc,addr_data,write_data,we);
 
 
 end
@@ -78,19 +78,24 @@ initial begin
      #50 reset = 0;
      
     // // mov
-    //instr=32'b0000000110100000001100000000001;
+        //instr=32'b0000000110100000001100000000001;
    
     // mov r3 2
-        instr=32'b00000011101000000011000000000010;
+          instr=32'b00000011101000000011000000000010;
+
     // add r3 r3 #1
-    #50 instr=32'b00000010100000110011000000000001;
+      #50 instr=32'b00000010100000110011000000000001;
+
     // sub r4 r3 #1
-    #50 instr=32'b00000010010000110100000000000001;
+      #50 instr=32'b00000010010000110100000000000001;
+
     // add r3 r3 #1
-    #50 instr=32'b00000000100000110011000000000011;
+      #50 instr=32'b00000000100000110011000000000011;
+
     // str r3 [r5] #-26
     //#50 instr=32'b1110 01 000000 0101 0011 0000 00011010
       #50 instr=32'b11100100000001010011000000011010; 
+
     // ldr r3 [r5] #-26
     //#50 instr=32'b1110 01 000001 0101 0011 0000 00011010
       #50 instr=32'b11100100000101010011000000011010;
