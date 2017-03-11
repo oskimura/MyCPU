@@ -231,7 +231,6 @@ module fetch(
    always @(posedge clk or posedge reset) begin
          if (reset) begin 
              pc_f <= 32'b0;
-             //instr_f <=32'b0;
          end
          else if (stall_f) begin
             pc_f<=pc_f;
@@ -596,9 +595,6 @@ cond_logic cond_logic_u(
     .mem_write(mem_write),
     .no_write(no_write),
     .branch_take(branch_take_e));
-
-    // delay
-
 endmodule
 
 ///////////////////////////////////////////
