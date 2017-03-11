@@ -43,7 +43,7 @@ module decoder(op,
                 end
                 // bx
                 else if (funct==6'b010010) begin
-                    control <= 10'b1001000010;    
+                    control <= 10'b1000000010;    
                 end
                 // dp imm
                 else begin
@@ -64,7 +64,7 @@ module decoder(op,
     end
 
     // bl
-    assign link = (branch & funct[4])? 1'b1 : 1'b0;
+    assign link = (branch & (funct[5:4]==2'b11))? 1'b1 : 1'b0;
 
     assign {branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op} = control;
     wire [3:0] cmd;

@@ -46,6 +46,8 @@ module reg_file(clk,
     wire [31:0] r14;
     wire [31:0] r15;
     
+    //assign r15 = r[14];
+
     reg [31:0] r[14:0];
 
     always @(posedge clk) begin
@@ -110,9 +112,12 @@ module shift(alu_src, instr, rd2, rd3, imm, shift_result);
 
     wire [31:0] src;
 
-    assign src = alu_src? imm :
+    assign src = alu_src ? imm :
+                 // bx
+                 (instr[7:4]==4'b0001)? rd2:
                  instr[4]? rd3 :
-                 shamt;
+                 shamt ;
+                 
 
     wire [31:0] ror_out;
 
@@ -125,7 +130,11 @@ module shift(alu_src, instr, rd2, rd3, imm, shift_result);
             // mov
                 shift_result <= src;
             end
-        end 
+        end
+        // bx
+        else if(instr[7:4]==4'b0001) begin 
+                shift_result <= src;
+        end
         else
             case (sh)
                 // mov
@@ -379,7 +388,7 @@ module decode(
     //rd1, rd2, imm
     shift shift_u(.alu_src(alu_src_d), 
                 .instr(instr_d[11:0]), 
-                .rd2(rd1_d), 
+                .rd2(rd2_d), 
                 .rd3(rd3), 
                 .imm(ext_imm_d), 
                 .shift_result(shift_result_d));
