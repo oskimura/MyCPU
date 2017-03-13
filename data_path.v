@@ -1,5 +1,8 @@
 `default_nettype none
 
+
+
+
 module extend(instr,imm_src,
               ext_imm);
     input [23:0]instr ;
@@ -30,6 +33,7 @@ module reg_file(clk,
 
                 wd3,
                 r15,
+                mode,
                 // Rn
                 rd1,
                 // Rd/Rm
@@ -41,50 +45,121 @@ module reg_file(clk,
     input clk,reset,we3,link;
     input [3:0] a1,a2,a3,a4;
     input [31:0] wd3,r15;
+    input [2:0] mode;
     output [31:0] rd1,rd2,rd3,rd4;
 
     wire [31:0] r14;
-    wire [31:0] r15;
-    
-    //assign r15 = r[14];
 
-    reg [31:0] r[14:0];
+    reg [31:0] cpsr;
 
+    integer i;
     always @(posedge clk) begin
       if (we3) begin 
-        r[a3] <= wd3;
+        //r[a3] <= wd3;
+        if (ra3_sel != 15)
+            reg_bank[ra3_sel] <= wd3;
       end
               // bl 
       else if (link) begin
-            r[14] <= r15 -4;
+            //r[14] <= r15 -4;
+            if (mode==0) 
+                reg_bank[14] <= r15-4;
         end
 
       else if (reset) begin
-        r[0] <= 0;
-        r[1] <= 0;
-        r[2] <= 0;
-        r[3] <= 0;
-        r[4] <= 0;
-        r[5] <= 0;
-        r[6] <= 0;
-        r[7] <= 0;
-        r[8] <= 0;
-        r[9] <= 0;
-        r[10] <= 0;
-        r[11] <= 0;
-        r[12] <= 0;
-        r[13] <= 0;
-        r[14] <= 0;
+        for(i=0;i<30;i++) begin
+            reg_bank[i] = 32'b0;
+        end
       end
     end
 
-    assign rd1 = (a1==4'b1111)? r15 : r[a1];
-    assign rd2 = (a2==4'b1111)? r15 : r[a2];
+    wire [6:0] ra1_sel;
+    wire [6:0] ra2_sel;
+    wire [6:0] ra3_sel;
+    wire [6:0] ra4_sel;
 
-    assign rd3 = (a3==4'b1111)? r15 : r[a3];
-    assign rd4 = (a3==4'b1111)? r15 : r[a4];
+    assign ra1_sel = reg_select(mode,a1);
+    assign ra2_sel = reg_select(mode,a2);
+    assign ra3_sel = reg_select(mode,a3);
+    assign ra4_sel = reg_select(mode,a4);
+    
+    assign rd1 = (a1==4'b1111)? r15 : reg_bank[ra1_sel];
+    assign rd2 = (a2==4'b1111)? r15 : reg_bank[ra2_sel];
+    assign rd3 = (a3==4'b1111)? r15 : reg_bank[ra3_sel];
+    assign rd4 = (a4==4'b1111)? r15 : reg_bank[ra4_sel];
 
-    assign r14 = r[14];
+    reg [31:0] reg_bank [29:0];
+
+function [4:0] reg_select;
+    input [2:0] mode;
+    input [3:0] select;
+
+    begin
+        casez ({mode,select})
+            // r0 r7
+            7'b???0???: reg_select = {2'b0,select}; 
+            // r8 - r14
+            7'b0001???: reg_select= {2'b0,select};
+            // f8_firq - f14_firq
+            7'b0011???: reg_select = select+14;
+            // r13_irq 
+            7'b0101101: reg_select = 14+4;
+            // r14_irq
+            7'b0101110: reg_select = 14+4+1;
+            // r13_svc
+            7'b0111101: reg_select = 14+4+2;
+            // r14_svc
+            7'b0111110: reg_select = 14+4+3;
+            // r13_undf
+            7'b1001101: reg_select = 14+4+4;
+            // r14_undef
+            7'b1001110: reg_select = 4+4+5;
+
+            //r13_abt
+            7'b1011101: reg_select = 14+4+6;
+
+            //r14_abt
+            7'b1011110: reg_select = 14+4+7;
+
+        endcase
+
+    end
+endfunction 
+
+    wire [31:0] r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r13;
+    wire [31:0] r8_fiq,r9_fiq ,r10_fiq,r11_fiq,r12_fiq,r13_fiq,r14_fiq;
+    wire [31:0] r13_irq,r14_irq;
+    wire [31:0] r13_svc,r14_svc;
+
+    assign r0 = reg_bank[0];
+    assign r1 = reg_bank[1];
+    assign r2 = reg_bank[2];
+    assign r3 = reg_bank[3];
+    assign r4 = reg_bank[4];
+    assign r5 = reg_bank[5];
+    assign r6 = reg_bank[6];
+    assign r7 = reg_bank[7];
+    assign r8 = reg_bank[8];
+    assign r9 = reg_bank[9];
+    assign r10 = reg_bank[10];
+    assign r11 = reg_bank[11];
+    assign r12 = reg_bank[12];
+    assign r13 = reg_bank[13];
+    assign r14 = reg_bank[14];
+
+    assign r8_fiq = reg_bank[15];
+    assign r9_fiq = reg_bank[16];
+    assign r10_fiq = reg_bank[17];
+    assign r11_fiq = reg_bank[18];
+    assign r12_fiq = reg_bank[19];
+    assign r13_fiq = reg_bank[20];
+    assign r14_fiq = reg_bank[15];
+
+    wire [31:0]spsr_fiq;
+    wire [31:0]spsr_irq;
+    wire [31:0]spsr_svc;
+    wire [31:0]spsr_undef;
+    wire [31:0]spsr_abt;
 
 endmodule
 
@@ -100,6 +175,7 @@ module shift(alu_src, instr, rd2, rd3, imm, shift_result);
     input [31:0] rd2;
     // Rs
     input [31:0] rd3;
+
     input [31:0] imm;
     output reg [31:0] shift_result;
 
@@ -114,9 +190,9 @@ module shift(alu_src, instr, rd2, rd3, imm, shift_result);
 
     assign src = alu_src ? imm :
                  // bx
-                 (instr[7:4]==4'b0001)? rd2:
-                 instr[4]? rd3 :
-                 shamt ;
+                 (instr[7:4]==4'b0001) ? rd2:
+                 instr[4] ? rd3 :
+                 shamt;
                  
 
     wire [31:0] ror_out;
@@ -159,6 +235,7 @@ module shift(alu_src, instr, rd2, rd3, imm, shift_result);
              endcase 
     end 
     
+
 
 // ror
 
@@ -223,6 +300,10 @@ module fetch(
     input branch_take_e,
     input [31:0]alu_result_e,
 
+    // interrupt
+    input interrupt_f,
+    input [31:0] interrupt_vector_f,
+
     // instuction  Memory
     output  [31:0] instr_f,
     // program counter
@@ -232,7 +313,9 @@ module fetch(
     wire [31:0] pc_next;
     wire [31:0] pc;
 
-   assign pc_next = (pc_src_w)? result_w : pc_plus4_f;
+   assign pc_next = (pc_src_w)? result_w : 
+                    interrupt_f? interrupt_vector_f :
+                    pc_plus4_f;
    assign pc = branch_take_e ? alu_result_e : pc_next;
    assign pc_plus4_f = pc_f + 4;
 
@@ -302,8 +385,11 @@ module decode(
     output shift_flag_d,
     output [31:0] shift_result_d,
 
-    output [3:0] wa3_d
+    output [3:0] wa3_d,
+    output interrupt,
+    output [31:0] interrupt_vector
 );
+    wire [2:0] mode;
 
     reg [31:0] instr_d;
     always @(posedge clk) begin
@@ -315,6 +401,9 @@ module decode(
         instr_d <= instr_f;
     end
 
+    // svc interrupt
+    assign interrupt_vector = (mode == 4'd2) ? 32'h00000008 : 0;
+    assign interrupt = (mode == 4'd2) ? 1 : 0;
 
     wire [1:0] op;
     wire [5:0] funct;
@@ -368,6 +457,8 @@ module decode(
 
                         .wd3(alu_out_m),
                         .r15(pc_plus8_d),
+
+                        .mode(mode),
                         // Rn
                         .rd1(rd1_d),
                         // Rd/Rm
@@ -376,9 +467,6 @@ module decode(
                         .rd3(rd3),
                         // Rs
                         .rd4(rd4));
-
-
-
     wire no_write_d;
     //wire shift_flag_d;
     //wire swap_d;
@@ -395,6 +483,11 @@ module decode(
 
 
     wire link;
+    wire interrupt_svc;
+    //wire [2:0] mode;
+
+    assign mode = interrupt_svc ? 2 : 0;
+
     decoder decoder_u(.op(op),
                 .funct(funct),
                 .rd(rd),
@@ -412,7 +505,8 @@ module decode(
                 .shift_flag(shift_flag_d),
                 .swap(swap_d),
                 .branch(branch_d),
-                .link(link));
+                .link(link),
+                .interrupt_svc(interrupt_svc));
 
 endmodule
 
@@ -747,6 +841,12 @@ module data_path (
     output we
     );
 
+localparam [3:0] USER_MODE = 4'd0,
+                 SYSTEM_MODE = 4'd1,
+                 SVC_MODE = 4'd2,
+                 IRQ_MODE = 4'd6;
+
+
     wire [31:0] result_w;
 
     //alu 
@@ -766,6 +866,10 @@ module data_path (
     // deley
     wire branch_take_e;
 
+
+    wire interrupt;
+    wire [31:0] interrupt_vector;
+
     fetch fetch_u(
      .clk(clk),
      .reset(reset), 
@@ -783,6 +887,10 @@ module data_path (
       // deley
      .branch_take_e(branch_take_e),
      .alu_result_e(alu_result_e),
+
+     // interrupt
+     .interrupt_f(interrupt),
+     .interrupt_vector_f(interrupt_vector),
 
     // output instuction  Memory
      .instr_f(instr_f),
@@ -873,7 +981,11 @@ module data_path (
         .ext_imm_d(ext_imm_d),
         .shift_flag_d(shift_flag),
         .shift_result_d(shift_result),
-        .wa3_d(wa3_d)
+        .wa3_d(wa3_d),
+
+        // interrupt
+        .interrupt(interrupt),
+        .interrupt_vector(interrupt_vector)
     );
 
 
