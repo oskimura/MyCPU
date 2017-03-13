@@ -301,8 +301,8 @@ module fetch(
     input [31:0]alu_result_e,
 
     // interrupt
-    input interrupt_f,
-    input [31:0] interrupt_vector_f,
+    input interrupt_e,
+    input [31:0] interrupt_vector_e,
 
     // instuction  Memory
     output  [31:0] instr_f,
@@ -386,8 +386,9 @@ module decode(
     output [31:0] shift_result_d,
 
     output [3:0] wa3_d,
-    output interrupt,
-    output [31:0] interrupt_vector
+
+    // interrupt
+    output [3:0] interrupt_request_d
 );
     wire [2:0] mode;
 
@@ -402,8 +403,7 @@ module decode(
     end
 
     // svc interrupt
-    assign interrupt_vector = (mode == 4'd2) ? 32'h00000008 : 0;
-    assign interrupt = (mode == 4'd2) ? 1 : 0;
+    assign interrupt_request_d = mode;
 
     wire [1:0] op;
     wire [5:0] funct;
@@ -554,6 +554,9 @@ module execute(
 
     input [3:0] wa3_d,
 
+    // interrupt
+    input [3:0] interrupt_request_d,
+
     // cond OUTPUt
     output pc_src_e,
     output reg_write_e,
@@ -566,9 +569,12 @@ module execute(
 
     // 
     output reg [3:0] wa3_e,
-    output branch_take_e    
+    output branch_take_e,
+    
+    // interrupt
+    output [31:0] interrupt_vector_e,
+    output interrupt_e
 );
-
     wire [31:0] src_a_e;
     wire [31:0] src_b_e;
 
@@ -600,6 +606,7 @@ module execute(
     reg shift_flag_e;
     reg [31:0] shift_result_e;
     reg swap_e;
+    reg [3:0] interrupt_request_e;
 
     always @(posedge clk) begin
         if (reset || flush_e) begin
@@ -621,6 +628,7 @@ module execute(
             shift_flag_e <=0;
             shift_result_e <= 32'b0;
             swap_e <= 1'b0;
+            interrupt_request_e <= 4'b0;
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -640,9 +648,15 @@ module execute(
             shift_flag_e <= shift_flag_d;
             shift_result_e <= shift_result_d;
             swap_e <= swap_d;
+            interrupt_request_e <= interrupt_request_d;
         end
 
     end
+
+
+    // interrupt
+    assign interrupt_vector_e = (interrupt_request_e == 4'd2) ? 32'h00000008 : 32'h0;
+    assign interrupt_e = interrupt_request_e? 1'b1 : 1'b0;
 
     wire [3:0] alu_flags;
 
@@ -867,8 +881,8 @@ localparam [3:0] USER_MODE = 4'd0,
     wire branch_take_e;
 
 
-    wire interrupt;
-    wire [31:0] interrupt_vector;
+    wire interrupt_e;
+    wire [31:0] interrupt_vector_e;
 
     fetch fetch_u(
      .clk(clk),
@@ -889,8 +903,8 @@ localparam [3:0] USER_MODE = 4'd0,
      .alu_result_e(alu_result_e),
 
      // interrupt
-     .interrupt_f(interrupt),
-     .interrupt_vector_f(interrupt_vector),
+     .interrupt_e(interrupt_e),
+     .interrupt_vector_e(interrupt_vector_e),
 
     // output instuction  Memory
      .instr_f(instr_f),
@@ -933,6 +947,8 @@ localparam [3:0] USER_MODE = 4'd0,
     wire [3:0] ra2_d;
 
     wire swap_d;
+
+    wire [3:0] interrupt_request_d;
 
     ////////////////////////////////
     // Decode
@@ -984,8 +1000,9 @@ localparam [3:0] USER_MODE = 4'd0,
         .wa3_d(wa3_d),
 
         // interrupt
-        .interrupt(interrupt),
-        .interrupt_vector(interrupt_vector)
+        //.interrupt(interrupt),
+        //.interrupt_vector(interrupt_vector)
+        .interrupt_request_d(interrupt_request_d)
     );
 
 
@@ -1000,6 +1017,10 @@ localparam [3:0] USER_MODE = 4'd0,
 
      wire [1:0] forward_a_e;
      wire [1:0] forward_b_e;
+
+
+     //wire [31:0] interrupt_vector_e;
+     //wire interrupt_e;
 
     ////////////////////////////////
     // Execute
@@ -1049,6 +1070,9 @@ localparam [3:0] USER_MODE = 4'd0,
 
         .wa3_d(wa3_d),
 
+        // interrupt
+        .interrupt_request_d(interrupt_request_d),
+
         // cond OUTPUT
         .pc_src_e(pc_src_e),
         .reg_write_e(reg_write_e),
@@ -1062,7 +1086,11 @@ localparam [3:0] USER_MODE = 4'd0,
 
         // 
         .wa3_e(wa3_e),
-        .branch_take_e(branch_take_e)
+        .branch_take_e(branch_take_e),
+        
+        // interrupt
+        .interrupt_vector_e(interrupt_vector_e),
+        .interrupt_e(interrupt_e)
     );
                  //rd,
                  //shift_flag,
