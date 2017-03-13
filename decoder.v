@@ -73,8 +73,8 @@ module decoder(op,
     // swi
     assign interrupt_svc = (op==2'd3) ? 1'b1 : 1'b0;
 
-    // bl
-    assign link = (branch & (funct[5:4]==2'b11))? 1'b1 : 1'b0;
+    // bl swi
+    assign link = (branch & (funct[5:4]==2'b11))||(op==2'd3)? 1'b1 : 1'b0;
 
     assign {branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op} = control;
     wire [3:0] cmd;
