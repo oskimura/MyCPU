@@ -357,6 +357,10 @@ module decode(
     
     input [31:0] alu_out_m,
 
+    // interrupt
+    input irq,
+    input firq,
+
     output [3:0] ra1_d,
     output [3:0] ra2_d,
 
@@ -403,7 +407,10 @@ module decode(
     end
 
     // svc interrupt
-    assign interrupt_request_d = mode;
+    assign interrupt_request_d =  firq ? 1 :
+                                  irq ? 2 :
+                                  interrupt_svc? 3 :
+                                  0;
 
     wire [1:0] op;
     wire [5:0] funct;
@@ -486,7 +493,10 @@ module decode(
     wire interrupt_svc;
     //wire [2:0] mode;
 
-    assign mode = interrupt_svc ? 2 : 0;
+    assign mode = firq ? 1 :
+                  irq ? 2 :
+                  interrupt_svc ? 3 :                  
+                  0;
 
     decoder decoder_u(.op(op),
                 .funct(funct),
@@ -653,9 +663,11 @@ module execute(
 
     end
 
-
     // interrupt
-    assign interrupt_vector_e = (interrupt_request_e == 4'd2) ? 32'h00000008 : 32'h0;
+    assign interrupt_vector_e = (interrupt_request_e == 4'd1) ? 32'h0000001c : 
+                                (interrupt_request_e == 4'd2) ? 32'h00000018 :
+                                (interrupt_request_e == 4'd3) ? 32'h00000008 : 
+                                32'h0;
     assign interrupt_e = interrupt_request_e? 1'b1 : 1'b0;
 
     wire [3:0] alu_flags;
@@ -845,6 +857,10 @@ module data_path (
      //  data memory  input
     input [31:0] read_data,
 
+    // interrupt
+    input irq,
+    input firq,
+
     // instruction memory output
     output [31:0] pc,
 
@@ -969,6 +985,10 @@ localparam [3:0] USER_MODE = 4'd0,
         .stall_d(ldr_stall),
         .flush_d(pc_write_pending_f | pc_src_w | branch_take_e),
         
+        // interrupt
+        .irq(irq),
+        .firq(firq),
+
         .alu_out_m(alu_out_m),
         .ra1_d(ra1_d),
         .ra2_d(ra2_d),
