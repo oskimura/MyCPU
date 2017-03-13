@@ -15,7 +15,8 @@ module decoder(op,
                shift_flag,
                swap,
                branch,
-               link);
+               link,
+               interrupt_svc);
 
     input [1:0] op;
     input [5:0] funct;
@@ -29,6 +30,9 @@ module decoder(op,
     output swap;
     output branch;
     output link;
+    output interrupt_svc;
+    //output [2:0] mode;
+    
 
     // main decoder       
     reg [9:0] control;
@@ -60,8 +64,14 @@ module decoder(op,
             2'd2:
                 // b
                 control <= 10'b1001100x10;
+            2'd3:
+                // swi 
+                control <= 10'b1001100x10;                
         endcase
     end
+
+    // swi
+    assign interrupt_svc = (op==2'd3) ? 1'b1 : 1'b0;
 
     // bl
     assign link = (branch & (funct[5:4]==2'b11))? 1'b1 : 1'b0;
