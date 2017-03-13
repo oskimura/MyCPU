@@ -313,8 +313,8 @@ module fetch(
     wire [31:0] pc_next;
     wire [31:0] pc;
 
-   assign pc_next = (pc_src_w)? result_w : 
-                    interrupt_f? interrupt_vector_f :
+   assign pc_next = interrupt_e? interrupt_vector_e :
+                    (pc_src_w)? result_w : 
                     pc_plus4_f;
    assign pc = branch_take_e ? alu_result_e : pc_next;
    assign pc_plus4_f = pc_f + 4;
