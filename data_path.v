@@ -508,6 +508,10 @@ module decode(
     wire interrupt_svc;
     //wire [2:0] mode;
 
+    // coprocessor
+    wire cop_src;
+    wire cop_w;
+
     assign mode = firq ? 1 :
                   irq ? 2 :
                   interrupt_svc ? 3 :                  
@@ -534,8 +538,35 @@ module decode(
                 .swap(swap_d),
                 .branch(branch_d),
                 .link(link),
-                .interrupt_svc(interrupt_svc));
+                .interrupt_svc(interrupt_svc),
+                // coprocessor
+                .cop_src(cop_src),
+                .cop_w(cop_w)
+                );
 
+endmodule
+
+
+
+module coprocessor(
+    input clk,
+    input reset,
+
+    input opcode1,
+    input opcode2,
+
+    input [3:0] cp_num,
+
+    input [3:0] crn,
+    input [3:0] crm,
+    input [31:0] rd,
+
+    output [31:0] read_data
+);
+
+    always @(posedge clk) begin
+        
+    end
 endmodule
 
 ///////////////////////////////////////////
@@ -922,7 +953,7 @@ localparam [3:0] USER_MODE = 4'd0,
     // deley
     wire branch_take_e;
 
-
+    // interrupt
     wire interrupt_e;
     wire [31:0] interrupt_vector_e;
 
