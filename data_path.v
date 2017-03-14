@@ -360,6 +360,8 @@ module decode(
     // interrupt
     input irq,
     input firq,
+    input irq_mask_e,
+    input firq_mask_e,
 
     output [3:0] ra1_d,
     output [3:0] ra2_d,
@@ -392,18 +394,31 @@ module decode(
     output [3:0] wa3_d,
 
     // interrupt
-    output [3:0] interrupt_request_d
+    output [3:0] interrupt_request_d,
+    output  irq_mask_d,
+    output  firq_mask_d
 );
     wire [2:0] mode;
 
+    reg firq_mask;
+    reg irq_mask;
+
     reg [31:0] instr_d;
     always @(posedge clk) begin
-        if (reset) 
+        if (reset) begin
             instr_d <=32'b0;
+
+            firq_mask <= 1'b0;
+            irq_mask <= 1'b0;
+        end
         else if (stall_d) 
             instr_d<=32'b0;
-        else
-        instr_d <= instr_f;
+        else  begin
+            instr_d <= instr_f;
+
+            firq_mask <= firq_mask_e;
+            irq_mask <= irq_mask_e;
+        end
     end
 
     // svc interrupt
@@ -498,6 +513,9 @@ module decode(
                   interrupt_svc ? 3 :                  
                   0;
 
+    assign firq_mask_d = firq;
+    assign irq_mask_d = irq | firq | interrupt_svc;
+
     decoder decoder_u(.op(op),
                 .funct(funct),
                 .rd(rd),
@@ -566,6 +584,8 @@ module execute(
 
     // interrupt
     input [3:0] interrupt_request_d,
+    input irq_mask_d,
+    input firq_mask_d,
 
     // cond OUTPUt
     output pc_src_e,
@@ -583,7 +603,9 @@ module execute(
     
     // interrupt
     output [31:0] interrupt_vector_e,
-    output interrupt_e
+    output interrupt_e,
+    output reg irq_mask_e,
+    output reg firq_mask_e
 );
     wire [31:0] src_a_e;
     wire [31:0] src_b_e;
@@ -639,6 +661,8 @@ module execute(
             shift_result_e <= 32'b0;
             swap_e <= 1'b0;
             interrupt_request_e <= 4'b0;
+            irq_mask_e <= 1'b0;
+            firq_mask_e <= 1'b0;
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -659,6 +683,8 @@ module execute(
             shift_result_e <= shift_result_d;
             swap_e <= swap_d;
             interrupt_request_e <= interrupt_request_d;
+            irq_mask_e <= irq_mask_d;
+            firq_mask_e <= firq_mask_d;
         end
 
     end
@@ -900,6 +926,11 @@ localparam [3:0] USER_MODE = 4'd0,
     wire interrupt_e;
     wire [31:0] interrupt_vector_e;
 
+    wire irq_mask_e;
+    wire firq_mask_e;
+    wire irq_mask_d;
+    wire firq_mask_d;
+
     fetch fetch_u(
      .clk(clk),
      .reset(reset), 
@@ -988,6 +1019,8 @@ localparam [3:0] USER_MODE = 4'd0,
         // interrupt
         .irq(irq),
         .firq(firq),
+        .irq_mask_e(irq_mask_e),
+        .firq_mask_e(firq_mask_e),
 
         .alu_out_m(alu_out_m),
         .ra1_d(ra1_d),
@@ -1022,7 +1055,9 @@ localparam [3:0] USER_MODE = 4'd0,
         // interrupt
         //.interrupt(interrupt),
         //.interrupt_vector(interrupt_vector)
-        .interrupt_request_d(interrupt_request_d)
+        .interrupt_request_d(interrupt_request_d),
+        .irq_mask_d(irq_mask_d),
+        .firq_mask_d(firq_mask_d)
     );
 
 
@@ -1092,6 +1127,8 @@ localparam [3:0] USER_MODE = 4'd0,
 
         // interrupt
         .interrupt_request_d(interrupt_request_d),
+        .irq_mask_d(irq_mask_d),
+        .firq_mask_d(firq_mask_d),
 
         // cond OUTPUT
         .pc_src_e(pc_src_e),
@@ -1110,7 +1147,9 @@ localparam [3:0] USER_MODE = 4'd0,
         
         // interrupt
         .interrupt_vector_e(interrupt_vector_e),
-        .interrupt_e(interrupt_e)
+        .interrupt_e(interrupt_e),
+        .irq_mask_e(irq_mask_e),
+        .firq_mask_e(firq_mask_e)
     );
                  //rd,
                  //shift_flag,
