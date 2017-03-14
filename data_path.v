@@ -508,6 +508,10 @@ module decode(
     wire interrupt_svc;
     //wire [2:0] mode;
 
+    // coprocessor
+    wire cop_src;
+    wire cop_w;
+
     assign mode = firq ? 1 :
                   irq ? 2 :
                   interrupt_svc ? 3 :                  
@@ -534,7 +538,75 @@ module decode(
                 .swap(swap_d),
                 .branch(branch_d),
                 .link(link),
-                .interrupt_svc(interrupt_svc));
+                .interrupt_svc(interrupt_svc),
+                // coprocessor
+                .cop_src(cop_src),
+                .cop_w(cop_w)
+                );
+
+
+wire [31:0] coprocessor_data;
+coprocessor coprocessor_u(
+     .clk(clk),
+     .reset(reset),
+
+     .write_enable(instr_d[20]),
+
+     .opcode1(instr_d[23:21]),
+     .opcode2(instr_d[7:5]),
+
+     .cp_num(instr_d[11:8]),
+     //rn
+     .crn(instr_d[19:16]),
+     //rm
+     .crm(instr_d[3:0]),
+     // rd
+     .rd(rd3),
+
+     .read_data(coprocessor_data)
+);
+
+endmodule
+
+
+module coprocessor(
+    input clk,
+    input reset,
+
+    input write_enable,
+
+    input [2:0] opcode1,
+    input [2:0] opcode2,
+
+    input [3:0] cp_num,
+
+    input [3:0] crn,
+    input [3:0] crm,
+    input [31:0] rd,
+
+    output reg [31:0] read_data
+);
+
+    reg [2:0] cache_control;
+    reg [31:0] cacheable_area;
+
+    always @(posedge clk) begin
+        if (reset) begin
+            cache_control = 2'b0;
+            cacheable_area = 32'b0;
+        end
+        else if (write_enable)
+            case (crn) 
+                2: cache_control <= rd[1:0];
+                3: cacheable_area <= rd;
+            endcase
+        else
+            case (crn)
+                2: read_data <= {30'b0,cache_control};
+                3: read_data <= cacheable_area;
+                default read_data <= 32'b0;
+            endcase
+    end
 
 endmodule
 
@@ -922,7 +994,7 @@ localparam [3:0] USER_MODE = 4'd0,
     // deley
     wire branch_take_e;
 
-
+    // interrupt
     wire interrupt_e;
     wire [31:0] interrupt_vector_e;
 

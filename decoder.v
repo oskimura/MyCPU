@@ -16,7 +16,11 @@ module decoder(op,
                swap,
                branch,
                link,
-               interrupt_svc);
+               interrupt_svc,
+               // coprocessor
+               cop_src,
+               cop_w
+               );
 
     input [1:0] op;
     input [5:0] funct;
@@ -31,6 +35,9 @@ module decoder(op,
     output branch;
     output link;
     output interrupt_svc;
+    output cop_src;
+    output cop_w;
+
     //output [2:0] mode;
     
 
@@ -66,12 +73,21 @@ module decoder(op,
                 control <= 10'b1001100x10;
             2'd3:
                 // swi 
-                control <= 10'b1001100x10;                
+                if (funct[5]) 
+                    control <= 10'b1001100x10;
+                // coprocessor
+                // mcr or mrc
+                else
+                    control <= 10'b0001001x01;
         endcase
     end
 
     // swi
     assign interrupt_svc = (op==2'd3) ? 1'b1 : 1'b0;
+
+   // coprocessor
+   assign cop_src = ({op,funct[5:4],funct[0]} == 5'b11100)?1:0;
+   assign cop_w = ({op,funct[5:4],funct[0]} == 5'b11101)?1:0;
 
     // bl swi
     assign link = (branch & (funct[5:4]==2'b11))||(op==2'd3)? 1'b1 : 1'b0;

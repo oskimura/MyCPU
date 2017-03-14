@@ -151,10 +151,15 @@ initial begin
     //ldm
     //ldr
     //ldrb
-    //mcr        
+    //mcr
+    //#10 instr=32'b 0000 1110 000 0 1111 0010 1111 000 1 0000;
+    #10 instr=32'b00001110000011110010111100010000;
+
+
     //mlar
     //mov
     //mrc
+
     //mul
     //mvn
     //orr
