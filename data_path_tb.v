@@ -138,6 +138,40 @@ initial begin
     $display("swi");
     #10 instr=32'b00000011101000000011000000000010;
     #10 $display("mov r6 2");
+
+    //adc
+    //add
+    //and 
+    //b 
+    //bic
+    //cdp
+    //cmn
+    //eor
+    //ldc
+    //ldm
+    //ldr
+    //ldrb
+    //mcr        
+    //mlar
+    //mov
+    //mrc
+    //mul
+    //mvn
+    //orr
+    //rsb
+    //rsc
+    //sbc
+    //stc
+    //stm
+    //str
+    //strb
+    //swi
+    //swp
+    //swpb
+    //teq
+    //tst
+
+
   
 
 end
