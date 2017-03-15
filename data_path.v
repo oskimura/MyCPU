@@ -281,6 +281,24 @@ assign ror_out =
 
 endmodule
 
+
+module multiply(
+    input clk,
+    input reset,
+
+    input [31:0] in_a,
+    input [31:0] in_b,
+    input [31:0] in_c,
+
+    input funct,
+
+    output [31:0] out
+);
+
+    assign out = funct ? in_a * in_b + in_c :in_a * in_b;
+
+endmodule
+
 ///////////////////////////////////////////
 // fetch
 module fetch(
@@ -564,6 +582,20 @@ coprocessor coprocessor_u(
      .rd(rd3),
 
      .read_data(coprocessor_data)
+);
+
+wire [31:0] multi_out;
+multiply multiply_u(
+     .clk(clk),
+     .reset(reset),
+
+     .in_a(rd2_d),
+     .in_b(rd4),
+     .in_c(rd1_d),
+
+     .funct(instr_d[21]),
+
+     .out(multi_out)
 );
 
 endmodule
