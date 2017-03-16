@@ -292,10 +292,13 @@ module multiply(
 
     input funct,
 
-    output [31:0] out
+    output [1:0] flgas,
+    output [31:0] mul_out
 );
-
-    assign out = funct ? in_a * in_b + in_c :in_a * in_b;
+    wire [63:0] product;
+    assign product = funct ? in_a * in_b + in_c :in_a * in_b;
+    assign mul_out = product[31:0];
+    assign flags = {product[32],product[31:0]==32'b0};
 
 endmodule
 
@@ -585,6 +588,7 @@ coprocessor coprocessor_u(
 );
 
 wire [31:0] multi_out;
+wire [1:0] mul_flags;
 multiply multiply_u(
      .clk(clk),
      .reset(reset),
@@ -595,7 +599,8 @@ multiply multiply_u(
 
      .funct(instr_d[21]),
 
-     .out(multi_out)
+     .mul_out(multi_out).
+     .flags(mul_flags)
 );
 
 endmodule
