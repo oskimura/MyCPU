@@ -1,7 +1,6 @@
 `default_nettype none
-module decoder(op,
-               funct,
-               rd,
+module decoder(
+               instr_d,
                pcs,
                reg_w,
                mem_w,
@@ -19,12 +18,12 @@ module decoder(op,
                interrupt_svc,
                // coprocessor
                cop_src,
-               cop_w
+               cop_w,
+               mul_flag,
+               mul_control,
                );
 
-    input [1:0] op;
-    input [5:0] funct;
-    input [3:0] rd;
+    input [31:0] instr_d;
     output pcs,reg_w,mem_w,mem_to_reg,alu_src;
     output [1:0] imm_src,reg_src,flag_w;
             
@@ -37,9 +36,20 @@ module decoder(op,
     output interrupt_svc;
     output cop_src;
     output cop_w;
+    output mul_flag;
+    output mul_control;
+
 
     //output [2:0] mode;
-    
+    wire [1:0] op;
+    wire [5:0] funct;
+    wire [3:0] rd;
+
+
+    assign op = instr_d[27:26];
+    assign funct = instr_d[25:20];
+    // input regfile 
+    assign rd = instr_d[15:12];
 
     // main decoder       
     reg [9:0] control;
@@ -55,6 +65,10 @@ module decoder(op,
                 // bx
                 else if (funct==6'b010010) begin
                     control <= 10'b1000000010;    
+                end
+                // mul
+                else if (funct == 6'b0 && instr_d[7:4]==4'b1001) begin
+                    control <= 10'b0001001x01;
                 end
                 // dp imm
                 else begin
@@ -81,6 +95,10 @@ module decoder(op,
                     control <= 10'b0001001x01;
         endcase
     end
+
+    // mul
+    assign mul_flag = (funct == 6'b0 && instr_d[7:4]==4'b1001)?1:0;
+    assign mul_control = (instr_d[21] == 1)? 1 : 0;
 
     // swi
     assign interrupt_svc = (op==2'd3) ? 1'b1 : 1'b0;
