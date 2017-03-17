@@ -292,13 +292,15 @@ module multiply(
 
     input funct,
 
-    output [1:0] flgas,
+    output zero,
+    output neg,
     output [31:0] mul_out
 );
     wire [63:0] product;
     assign product = funct ? in_a * in_b + in_c :in_a * in_b;
     assign mul_out = product[31:0];
-    assign flags = {product[32],product[31:0]==32'b0};
+    assign neg = product[32];
+    assign zero = product[31:0]==32'b0;
 
 endmodule
 
@@ -404,6 +406,9 @@ module decode(
     // alu output
     output [31:0] rd1_d,
     output [31:0] rd2_d,
+    
+    output [31:0] rs_d,
+
     output swap_d,
 
     // imm
@@ -417,8 +422,13 @@ module decode(
     // interrupt
     output [3:0] interrupt_request_d,
     output  irq_mask_d,
-    output  firq_mask_d
+    output  firq_mask_d,
+
+    // mul
+    output mul_flag_d
 );
+wire mul_flag_d;
+
     wire [2:0] mode;
 
     reg firq_mask;
@@ -461,12 +471,14 @@ module decode(
     assign op = instr_d[27:26];
     assign funct = instr_d[25:20];
 
-    assign wa3_d = instr_d[15:12];
+    assign wa3_d = (mul_flag_d==1'b1)? instr_d[19:16] : instr_d[15:12];
 
     // input regfile 
     assign rd = instr_d[15:12];
     // Rn
-    assign ra1 = (reg_src_d[0]) ? 4'd15 :instr_d[19:16];
+    assign ra1 = (reg_src_d[0]) ? 4'd15 : 
+                 (mul_flag_d==1'b1) ? instr_d[15:12] 
+                 : instr_d[19:16];
     // Rd/Rm
     assign ra2 = (reg_src_d[1]) ? instr_d[15:12] : instr_d[3:0];
     // Rs
@@ -541,9 +553,10 @@ module decode(
     assign firq_mask_d = firq;
     assign irq_mask_d = irq | firq | interrupt_svc;
 
-    decoder decoder_u(.op(op),
-                .funct(funct),
-                .rd(rd),
+    wire mul_control_d;
+
+    decoder decoder_u(
+                .instr_d(instr_d),
 
                 .pcs(pc_src_d),
                 .reg_w(reg_write_d),
@@ -562,7 +575,9 @@ module decode(
                 .interrupt_svc(interrupt_svc),
                 // coprocessor
                 .cop_src(cop_src),
-                .cop_w(cop_w)
+                .cop_w(cop_w),
+                .mul_flag(mul_flag_d),
+                .mul_control(mul_control_d)
                 );
 
 
@@ -587,21 +602,6 @@ coprocessor coprocessor_u(
      .read_data(coprocessor_data)
 );
 
-wire [31:0] multi_out;
-wire [1:0] mul_flags;
-multiply multiply_u(
-     .clk(clk),
-     .reset(reset),
-
-     .in_a(rd2_d),
-     .in_b(rd4),
-     .in_c(rd1_d),
-
-     .funct(instr_d[21]),
-
-     .mul_out(multi_out).
-     .flags(mul_flags)
-);
 
 endmodule
 
@@ -679,6 +679,8 @@ module execute(
    
     input [31:0] rd1_d,
     input [31:0] rd2_d,
+    input [31:0] rs_d,
+
     //ext immdiate 
     input [31:0] ext_imm_d,
 
@@ -695,6 +697,10 @@ module execute(
     input [3:0] interrupt_request_d,
     input irq_mask_d,
     input firq_mask_d,
+
+    // mul
+    input mul_flag_d,
+    input mul_control_d,
 
     // cond OUTPUt
     output pc_src_e,
@@ -739,6 +745,7 @@ module execute(
 
     reg [31:0] rd1_e;
     reg [31:0] rd2_e;
+    reg [31:0] rs_e;
 
     reg flag_e;
 
@@ -748,6 +755,7 @@ module execute(
     reg [31:0] shift_result_e;
     reg swap_e;
     reg [3:0] interrupt_request_e;
+    reg mul_control_e;
 
     always @(posedge clk) begin
         if (reset || flush_e) begin
@@ -772,6 +780,9 @@ module execute(
             interrupt_request_e <= 4'b0;
             irq_mask_e <= 1'b0;
             firq_mask_e <= 1'b0;
+            rs_e <= 32'b0;
+            mul_control_e <= 32'b0;
+            
         end
         else begin
             pc_src_e <=pc_src_d;
@@ -794,6 +805,9 @@ module execute(
             interrupt_request_e <= interrupt_request_d;
             irq_mask_e <= irq_mask_d;
             firq_mask_e <= firq_mask_d;
+            rs_e <= rs_d;
+            mul_control_e <= mul_control_d;
+            
         end
 
     end
@@ -833,8 +847,29 @@ module execute(
     .alu_flags(alu_flags),
     .swap(swap_e));
 
+    // mul
+    wire [31:0] mul_out;
+    wire mul_neg;
+    wire mul_zero;
 
-    assign alu_result_e = shift_flag_e ? shift_result_e : alu_result;
+    multiply multiply_u(
+        .clk(clk),
+        .reset(reset),
+
+        .in_a(rd1_e),
+        .in_b(rs_e),
+        .in_c(rd2_e),
+
+        .funct(mul_control_e),
+
+        .neg(mul_neg),
+        .zero(mul_zero),
+        .mul_out(mul_out)
+    );
+
+    assign alu_result_e = shift_flag_e ? shift_result_e : 
+                          mul_flag_d ? mul_out : 
+                          alu_result;
 
 wire pc_src;
 wire reg_write;
@@ -1106,6 +1141,10 @@ localparam [3:0] USER_MODE = 4'd0,
 
     wire [3:0] interrupt_request_d;
 
+    // mul
+    wire mul_flag_d;
+    wire [31:0] mul_out_d;
+
     ////////////////////////////////
     // Decode
     decode decode_u(
@@ -1166,7 +1205,10 @@ localparam [3:0] USER_MODE = 4'd0,
         //.interrupt_vector(interrupt_vector)
         .interrupt_request_d(interrupt_request_d),
         .irq_mask_d(irq_mask_d),
-        .firq_mask_d(firq_mask_d)
+        .firq_mask_d(firq_mask_d),
+
+        // mul
+        .mul_flag_d(mul_flag_d)
     );
 
 
@@ -1238,6 +1280,9 @@ localparam [3:0] USER_MODE = 4'd0,
         .interrupt_request_d(interrupt_request_d),
         .irq_mask_d(irq_mask_d),
         .firq_mask_d(firq_mask_d),
+
+        // mul
+        .mul_flag_d(mul_flag_d),
 
         // cond OUTPUT
         .pc_src_e(pc_src_e),
