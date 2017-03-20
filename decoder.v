@@ -21,6 +21,11 @@ module decoder(
                cop_w,
                mul_flag,
                mul_control,
+               
+               // psr 
+               psr_w,
+               psr_select,
+               psr_src
                );
 
     input [31:0] instr_d;
@@ -39,6 +44,11 @@ module decoder(
     output mul_flag;
     output mul_control;
 
+     // psr
+     output reg psr_w;
+     output reg psr_select;
+     output reg psr_src;
+
 
     //output [2:0] mode;
     wire [1:0] op;
@@ -56,6 +66,9 @@ module decoder(
     wire alu_op;
 
     always @(*) begin
+        psr_src <= 0;
+        psr_w <= 0;
+        psr_select <= 0;
         case (op)
             2'd0:
                 // dp reg
@@ -70,6 +83,79 @@ module decoder(
                 else if (funct == 6'b0 && instr_d[7:4]==4'b1001) begin
                     control <= 10'b0001001x01;
                 end
+                // mrs
+                else if (funct == 6'b010000) begin
+                    psr_src = 1;
+                    psr_w = 0;
+                    psr_select <= 0;
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0000000000;
+
+                end
+                else if (funct == 6'b010100) begin
+                    psr_src = 1;
+                    psr_w = 0;
+                    psr_select <= 1;
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0000000000;
+
+                end
+                // msr
+
+                // MSR<cond> CPSR_<fields>, Rm
+                //cond 0 0 0 1 0 0 1 0 field_mask SBO SBZ 0 Rm
+                // reg to cpsr
+                else if (funct == 6'b010100) begin
+                    psr_src = 0;
+                    psr_w = 1;
+                    psr_select <= 0;
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0000000000;
+                end
+
+                //MSR<cond> SPSR_<fields>, Rm
+                //cond 0 0 0 1 0 1 1 0 field_mask SBO SBZ 0 Rm
+                else if (funct == 6'b010110) begin
+                    psr_src = 0;
+                    psr_w = 1;
+                    psr_select <= 1;
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0000000000;
+
+                end
+
+                //MSR<cond> CPSR_f, #
+                //cond 0 0 1 1 0 0 1 0 field_mask SBO rotate #
+                // imm to cpsr 
+                else if (funct == 6'b110010) begin
+                    psr_src = 0;
+                    psr_w = 1;
+                    psr_select <= 0;
+
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0001100000;
+
+                end
+    
+                // MSR<cond> SPSR_f, #
+                //cond 0 0 1 1 0 1 1 0 field_mask SBO rotate #
+                // imm to spsr 
+                else if (funct == 6'b110110) begin
+                    psr_src = 0;
+                    psr_w = 1;
+                    psr_select <= 1;
+                    //     1, 1        , 1   ,      1,      2,     1,     2,  1
+                    // branch,mem_to_reg,mem_w,alu_src,imm_src, reg_w,reg_src,alu_op
+                    control <= 10'b0001100000;
+                    
+                end
+
+
                 // dp imm
                 else begin
                     control <= 10'b0000xx1001; 

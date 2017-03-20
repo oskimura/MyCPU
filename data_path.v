@@ -526,6 +526,23 @@ wire mul_flag_d;
     //wire shift_flag_d;
     //wire swap_d;
 
+    wire [31:0] psr_out;
+    wire [31:0] psr_in;
+    wire psr_w;
+    wire psr_src;
+
+    assign psr_in = (alu_src_d) ? ext_imm_d : rd2_d;
+
+    psr psr_u(
+        .clk(clk),
+        .reset(reset),
+
+        .we(psr_w),
+        .mode(mode),
+        .psr_select(psr_select),
+        .write(psr_in),
+        .read(psr_out));
+
     wire [31:0] shift_result;
 
     //rd1, rd2, imm
@@ -555,6 +572,9 @@ wire mul_flag_d;
 
     wire mul_control_d;
 
+
+    wire psr_select;
+   
     decoder decoder_u(
                 .instr_d(instr_d),
 
@@ -577,7 +597,11 @@ wire mul_flag_d;
                 .cop_src(cop_src),
                 .cop_w(cop_w),
                 .mul_flag(mul_flag_d),
-                .mul_control(mul_control_d)
+                .mul_control(mul_control_d),
+                //psr 
+                .psr_w(psr_w),
+                .psr_select(psr_select),
+                .psr_src(psr_src)
                 );
 
 
@@ -643,6 +667,34 @@ module coprocessor(
                 3: read_data <= cacheable_area;
                 default read_data <= 32'b0;
             endcase
+    end
+
+endmodule
+
+
+module psr(
+    input clk,
+    input reset,
+
+    input we,
+    input [2:0]mode,
+    input psr_select,
+    input [31:0] write,
+    output reg [31:0] read
+);
+    reg [31:0] r[2:0];
+
+    wire reg_select;
+    assign reg_select = psr_select ? mode : 0;
+
+
+    always @(posedge clk) begin
+        if (reset) begin
+        end
+        else if (we) 
+            r[reg_select] <= write;
+        else       
+            read <= r[reg_select];
     end
 
 endmodule

@@ -160,6 +160,29 @@ initial begin
     //mov
     //mrc
 
+    //mrs
+    //cond 0 0 0 1 0 0 0 0 SBO Rd SBZ
+    #10 instr=32'b00000001000000000010000000000000;
+    //cond 0 0 0 1 0 1 0 0 SBO Rd SBZ
+    #10 instr=32'b00000001010000000010000000000000;
+
+    //msr
+    // MSR<cond> CPSR_<fields>, Rm
+    //cond 0 0 0 1 0 0 1 0 field_mask SBO SBZ 0 Rm
+    #10 instr=32'b00000001001011110000000000000010;
+
+    //MSR<cond> SPSR_<fields>, Rm
+    //cond 0 0 0 1 0 1 1 0 field_mask SBO SBZ 0 Rm
+    #10 instr=32'b00000001011011110000000000000010;
+
+    //MSR<cond> CPSR_f, #
+    //cond 0 0 1 1 0 0 1 0 field_mask SBO rotate #
+    #10 instr=32'b00000011001011110000000000000010;
+
+    // MSR<cond> SPSR_f, #
+    //cond 0 0 1 1 0 1 1 0 field_mask SBO rotate #
+    #10 instr=32'b00000011011011110000000000000010;
+
     //mul
     //#10 instr=32'0000 0 0 0 0 0 0 0 0 0010 0000 0010 1 0 0 1 0010;
     #10 instr=32'b00000000000000100000001010010010;
