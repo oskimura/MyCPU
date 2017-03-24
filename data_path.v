@@ -688,8 +688,12 @@ module psr(
     assign reg_select = psr_select ? mode : 0;
 
 
+    integer i;
     always @(posedge clk) begin
         if (reset) begin
+            for (i=0;i<5;i++) begin
+                r[i] <= 31'b0;
+            end
         end
         else if (we) 
             r[reg_select] <= write;
